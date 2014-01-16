@@ -54,6 +54,13 @@ public class SQLiteDatabase
         mCount--;
     }
 
+    void listMessage()
+    {
+        m_dbConnection.Open();
+        executeSQL("SELECT * FROM message");
+        m_dbConnection.Close();
+    }
+
     void decrementOrder()
     {
         m_dbConnection.Open();
