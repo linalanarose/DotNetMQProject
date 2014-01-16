@@ -7,9 +7,9 @@ using System.Windows.Forms;
 public class SQLiteDatabase
 {
     //set this to control size of queue
-    static int max_mCount;
+    private static int max_mCount = 10;
 
-    static int mCount;
+    private static int mCount;
     SQLiteConnection m_dbConnection;
     public SQLiteDatabase()
     {
