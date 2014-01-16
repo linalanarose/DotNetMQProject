@@ -7,9 +7,9 @@ using System.Windows.Forms;
 public class SQLiteDatabase
 {
     //set this to control size of queue
-    static int max_mCount;
+    private static int max_mCount = 10;
 
-    static int mCount;
+    private static int mCount;
     SQLiteConnection m_dbConnection;
     public SQLiteDatabase()
     {
@@ -25,7 +25,7 @@ public class SQLiteDatabase
         m_dbConnection.Close();
     }
 
-    void createMessage(String message)
+    public void createMessage(String message)
     {
         //if the queue isn't "full"
         if (mCount < max_mCount)
@@ -54,7 +54,14 @@ public class SQLiteDatabase
         mCount--;
     }
 
-    void decrementOrder()
+    public void listMessage()
+    {
+        m_dbConnection.Open();
+        executeSQL("SELECT * FROM message");
+        m_dbConnection.Close();
+    }
+
+    private void decrementOrder()
     {
         m_dbConnection.Open();
         executeSQL("UPDATE messages");
