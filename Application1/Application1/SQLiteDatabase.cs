@@ -10,10 +10,10 @@ public class SQLiteDatabase
     private static int max_mCount = 10;
 
     private static int mCount;
-    SQLiteConnection m_dbConnection;
+    public SQLiteConnection m_dbConnection;
     public SQLiteDatabase()
     {
-        SQLiteConnection.CreateFile("MessageDatabase.sqlite");
+        SQLiteConnection.CreateFile("\\sql\\MessageDatabase.sqlite");
         //make a database
         m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;");
         //set count
@@ -47,18 +47,11 @@ public class SQLiteDatabase
     public void deleteOldestMessage()
     {
         m_dbConnection.Open();
-        string sql = "Delete FROM message ORDER BY order ASC LIMIT 1";
+        string sql = "Delete FROM messages ORDER BY order ASC LIMIT 1";
         executeSQL(sql);
         m_dbConnection.Close();
         decrementOrder();
         mCount--;
-    }
-
-    public void listMessage()
-    {
-        m_dbConnection.Open();
-        executeSQL("SELECT * FROM message");
-        m_dbConnection.Close();
     }
 
     private void decrementOrder()
