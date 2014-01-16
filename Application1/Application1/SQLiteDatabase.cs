@@ -24,7 +24,7 @@ public class SQLiteDatabase
         executeSQL(sql);
         m_dbConnection.Close();
     }
-
+    //makes a message and adds it to the sql table
     public void createMessage(String message)
     {
         //if the queue isn't "full"
@@ -44,16 +44,30 @@ public class SQLiteDatabase
         }
     }
 
+    //returns the oldest message and deletes it
+    public String pullOldestMessage()
+    {
+        m_dbConnection.Open();
+        string sql = "SELECT message FROM messages ORDER BY order ASC LIMIT 1";
+        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+        SQLiteDataReader reader = command.ExecuteReader();
+        String msg = (String) reader["message"];
+        m_dbConnection.Close();
+        deleteOldestMessage();
+        return msg;
+    }
+    //deletes oldest message
     public void deleteOldestMessage()
     {
         m_dbConnection.Open();
-        string sql = "Delete FROM message ORDER BY order ASC LIMIT 1";
+        string sql = "Delete FROM messages ORDER BY order ASC LIMIT 1";
         executeSQL(sql);
         m_dbConnection.Close();
         decrementOrder();
         mCount--;
     }
 
+    //lists all messages
     public void listMessage()
     {
         m_dbConnection.Open();
@@ -61,6 +75,7 @@ public class SQLiteDatabase
         m_dbConnection.Close();
     }
 
+    //moves all messages up in queue
     private void decrementOrder()
     {
         m_dbConnection.Open();
@@ -68,7 +83,7 @@ public class SQLiteDatabase
         executeSQL("SET order = order - 1");
         m_dbConnection.Close();
     }
-
+    //simplifies the sql command process
     private void executeSQL(String sql)
     {
         SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
