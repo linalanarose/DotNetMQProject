@@ -35,8 +35,7 @@ public class SQLiteDatabase
         {
             m_dbConnection.Open();
             string sql = "insert into messages (order, message) values (" + mCount + ", '" + message + "')";
-            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-            command.ExecuteNonQuery();
+            executeSQL(sql);
             mCount++;
             m_dbConnection.Close();
         }
@@ -48,10 +47,15 @@ public class SQLiteDatabase
     }
     void decrementOrder()
     {
-            SQLiteCommand update = new SQLiteCommand("UPDATE messages", m_dbConnection);
-            update.ExecuteNonQuery();
-            SQLiteCommand decrement = new SQLiteCommand("SET order = order - 1", m_dbConnection);
-            decrement.ExecuteNonQuery();
+        m_dbConnection.Open();
+        executeSQL("UPDATE messages");
+        executeSQL("SET order = order - 1");
+        m_dbConnection.Close();
+    }
+    public void executeSQL(String sql)
+    {
+        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+        command.ExecuteNonQuery();
     }
 
 }
