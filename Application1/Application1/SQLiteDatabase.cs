@@ -16,16 +16,13 @@ public class SQLiteDatabase
         SQLiteConnection.CreateFile("MessageDatabase.sqlite");
         //make a database
         m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;");
+        //set count
         mCount = 0;
+        //create table
         m_dbConnection.Open();
         string sql = "create table messages (order int, message varchar())";
-        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-        command.ExecuteNonQuery();
+        executeSQL(sql);
         m_dbConnection.Close();
-    }
-        
-    static void Main()
-    {
     }
 
     void createMessage(String message)
@@ -43,8 +40,19 @@ public class SQLiteDatabase
         {
             //call delete function
             deleteOldestMessage();
+            createMessage(message);
         }
     }
+
+    public void deleteOldestMessage()
+    {
+        m_dbConnection.Open();
+        string sql = "Delete FROM message ORDER BY order ASC LIMIT 1";
+        executeSQL(sql);
+        m_dbConnection.Close();
+        mCount--;
+    }
+
     void decrementOrder()
     {
         m_dbConnection.Open();
@@ -52,6 +60,7 @@ public class SQLiteDatabase
         executeSQL("SET order = order - 1");
         m_dbConnection.Close();
     }
+
     public void executeSQL(String sql)
     {
         SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
