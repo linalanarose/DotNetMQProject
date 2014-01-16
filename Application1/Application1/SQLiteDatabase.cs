@@ -62,7 +62,7 @@ public class SQLiteDatabase
         m_dbConnection.Close();
     }
 
-    public void executeSQL(String sql)
+    private void executeSQL(String sql)
     {
         SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
         command.ExecuteNonQuery();
