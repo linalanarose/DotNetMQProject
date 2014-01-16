@@ -6,8 +6,10 @@ using System.Windows.Forms;
 
 public class SQLiteDatabase
 {
-    static int mCount;
+    //set this to control size of queue
     static int max_mCount;
+
+    static int mCount;
     SQLiteConnection m_dbConnection;
     public SQLiteDatabase()
     {
@@ -28,6 +30,7 @@ public class SQLiteDatabase
 
     void createMessage(String message)
     {
+        //if the queue isn't "full"
         if (mCount < max_mCount)
         {
             m_dbConnection.Open();
@@ -42,6 +45,13 @@ public class SQLiteDatabase
             //call delete function
             deleteOldestMessage();
         }
+    }
+    void decrementOrder()
+    {
+            SQLiteCommand update = new SQLiteCommand("UPDATE messages", m_dbConnection);
+            update.ExecuteNonQuery();
+            SQLiteCommand decrement = new SQLiteCommand("SET order = order - 1", m_dbConnection);
+            decrement.ExecuteNonQuery();
     }
 
 }
