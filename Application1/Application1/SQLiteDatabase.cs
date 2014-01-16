@@ -7,6 +7,7 @@ using System.Windows.Forms;
 public class SQLiteDatabase
 {
     static int mCount;
+    static int max_mCount;
     SQLiteConnection m_dbConnection;
     public SQLiteDatabase()
     {
@@ -27,12 +28,20 @@ public class SQLiteDatabase
 
     void createMessage(String message)
     {
-        m_dbConnection.Open();
-        string sql = "insert into messages (order, message) values (" + mCount + ", '" + message + "')";
-        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-        command.ExecuteNonQuery();
-        mCount++;
-        m_dbConnection.Close();
+        if (mCount < max_mCount)
+        {
+            m_dbConnection.Open();
+            string sql = "insert into messages (order, message) values (" + mCount + ", '" + message + "')";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.ExecuteNonQuery();
+            mCount++;
+            m_dbConnection.Close();
+        }
+        else
+        {
+            //call delete function
+            deleteOldestMessage();
+        }
     }
 
 }
