@@ -47,7 +47,7 @@ public class SQLiteDatabase
     public void deleteOldestMessage()
     {
         m_dbConnection.Open();
-        string sql = "Delete FROM message ORDER BY order ASC LIMIT 1";
+        string sql = "Delete FROM messages ORDER BY order ASC LIMIT 1";
         executeSQL(sql);
         m_dbConnection.Close();
         decrementOrder();
@@ -57,7 +57,7 @@ public class SQLiteDatabase
     public void listMessage()
     {
         m_dbConnection.Open();
-        executeSQL("SELECT * FROM message");
+        executeSQL("SELECT * FROM messages");
         m_dbConnection.Close();
     }
 
