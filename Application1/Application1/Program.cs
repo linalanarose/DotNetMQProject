@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
-using MDS.Client;
-//using System.Data.SQLite;
+//using MDS.Client;
+using System.Data.SQLite;
 
 namespace Application1
 {
@@ -13,13 +13,15 @@ namespace Application1
         static void Main()
         {
             //create MDSClient object and connect it
-            var mdsClient = new MDSClient("Application1");
-            mdsClient.Connect();
 
             //Tell user to make message for queue (get message)*
-            Console.WriteLine("Write something to send to the queue and hit enter");
+            Console.WriteLine("Write something to send to the server (or queue) and hit enter");
             //handle empty(null) messages and other possible problems
-            //create DotNetMQ message
+
+            //get message text (currently from console)
+            var text = Console.ReadLine();
+
+            //create message
             //set destination application
             //set message data
 
