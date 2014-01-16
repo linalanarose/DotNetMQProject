@@ -25,7 +25,7 @@ public class SQLiteDatabase
         m_dbConnection.Close();
     }
 
-    void createMessage(String message)
+    public void createMessage(String message)
     {
         //if the queue isn't "full"
         if (mCount < max_mCount)
@@ -54,14 +54,14 @@ public class SQLiteDatabase
         mCount--;
     }
 
-    void listMessage()
+    public void listMessage()
     {
         m_dbConnection.Open();
         executeSQL("SELECT * FROM message");
         m_dbConnection.Close();
     }
 
-    void decrementOrder()
+    private void decrementOrder()
     {
         m_dbConnection.Open();
         executeSQL("UPDATE messages");

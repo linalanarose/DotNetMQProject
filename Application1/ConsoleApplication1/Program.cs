@@ -10,6 +10,10 @@ namespace ConsoleApplication1
     {
         static void Main(string[] args)
         {
+            SQLiteDatabase database = new SQLiteDatabase();
+            Console.Write("Please enter message to send");
+            var messageText = Console.ReadLine();
+            database.
         }
     }
 }
