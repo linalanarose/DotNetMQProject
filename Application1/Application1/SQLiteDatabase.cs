@@ -50,6 +50,7 @@ public class SQLiteDatabase
         string sql = "Delete FROM message ORDER BY order ASC LIMIT 1";
         executeSQL(sql);
         m_dbConnection.Close();
+        decrementOrder();
         mCount--;
     }
 
