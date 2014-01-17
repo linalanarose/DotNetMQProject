@@ -22,18 +22,17 @@ namespace Database
         /// <param name="delay_reads">The delay in milliseconds between message sends</param>
         public SQLiteDatabase(int max_Count, int delay_reads)
         {
-            SQLiteConnection.CreateFile("MessageDatabase.sqlite");
             //make a database
-            m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;New=True");
-            //set counts
-            mCount = 0;
-            max_mCount = max_Count;
-            delay = delay_reads;
+            m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;");
             //create table
             m_dbConnection.Open();
-            string sql = "CREATE TABLE messages (msgID INT, message VARCHAR(50))";
+            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
             executeSQL(sql);
+            mCount = getNumOfMsgs();
             m_dbConnection.Close();
+            //set counts
+            max_mCount = max_Count;
+            delay = delay_reads;
         }
 
         /// <summary>
