@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using Database;
 
 namespace Sender
 {
+    /// <summary>
+    /// This class promotes a console for user to send messages
+    /// </summary>
     class Sender
     {
         static void Main(string[] args)
