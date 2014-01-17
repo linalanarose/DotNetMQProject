@@ -15,24 +15,33 @@ namespace Database
         private static int delay;
         private int mCount;
         public SQLiteConnection m_dbConnection;
+
         /// <summary>
-        /// creates database, sets message count to 0, delay, and max msg count, creates the table
+        /// Constructor: creates database, sets message count to 0, delay, and max msg count, creates the table
         /// </summary>
-        /// <param name="max_Count">The desired maximum messages allowed in the cache</param>
-        /// <param name="delay_reads">The delay in milliseconds between message sends</param>
-        public SQLiteDatabase(int max_Count, int delay_reads)
+        /// <param name="control">The input from the respective caller altering their usage of database</param>
+        /// <remarks>
+        /// If Sender calls the constructor int is set to max_Count, if Receiver calls int is set to delay
+        /// </remarks>
+        public SQLiteDatabase(String caller, int control)
         {
             //make a database or open the existing one
-            m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;");
+            m_dbConnection = new SQLiteConnection("Data Source=/../../../../DBLocation/MessageDatabase.sqlite;Version=3;");
             //create table if not existing
             m_dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
             executeSQL(sql);
             mCount = getNumOfMsgs();
             m_dbConnection.Close();
-            //set counts
-            max_mCount = max_Count;
-            delay = delay_reads;
+            //set max count if from sender, set delay if from receiving end.
+            if (caller.Equals("s"))
+            {
+                max_mCount = control;
+            }
+            else
+            {
+                delay = control;
+            }
         }
 
         /// <summary>
