@@ -7,7 +7,7 @@ using System.Windows.Forms;
 public class SQLiteDatabase
 {
     //set this to control size of queue
-    private static int max_mCount = 10;
+    private static int max_mCount = 3;
 
     private static int mCount;
     public SQLiteConnection m_dbConnection;
@@ -43,11 +43,23 @@ public class SQLiteDatabase
             createMessage(message);
         }
     }
+    //returns the oldest message and deletes it
+    public String pullOldestMessage()
+    {
+        m_dbConnection.Open();
+        string sql = "SELECT message FROM messages WHERE msgID = 0";
+        SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+        SQLiteDataReader reader = command.ExecuteReader();
+        String msg = (String)reader["message"];
+        m_dbConnection.Close();
+        deleteOldestMessage();
+        return msg;
+    }
 
     public void deleteOldestMessage()
     {
         m_dbConnection.Open();
-        string sql = "Delete FROM messages ORDER BY order ASC LIMIT 1";
+        string sql = "DELETE FROM messages WHERE msgID = 0";
         executeSQL(sql);
         m_dbConnection.Close();
         decrementOrder();
@@ -64,8 +76,7 @@ public class SQLiteDatabase
     private void decrementOrder()
     {
         m_dbConnection.Open();
-        executeSQL("UPDATE messages");
-        executeSQL("SET order = order - 1");
+        executeSQL("UPDATE messages SET msgID = msgID - 1");
         m_dbConnection.Close();
     }
 

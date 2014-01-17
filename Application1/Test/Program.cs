@@ -12,6 +12,7 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             Console.Write("Please enter message to send\n");
+            SQLiteDatabase database = new SQLiteDatabase();
             while (true)
             {
                 var messageText = Console.ReadLine();
@@ -19,10 +20,10 @@ namespace ConsoleApplication1
                 {
                     break;
                 }
-                SQLiteDatabase database = new SQLiteDatabase();
+
                 database.createMessage(messageText);
 
-                //database.m_dbConnection.Open();
+                database.m_dbConnection.Open();
                 SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", database.m_dbConnection);
                 SQLiteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
