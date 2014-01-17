@@ -13,7 +13,7 @@ namespace ConsoleApplication1
         {
             Console.Write("Please enter message to send or type 'exit' to quit\n");
             //creates a new sqlitedatabase
-            SQLiteDatabase database = new SQLiteDatabase();
+            SQLiteDatabase database = new SQLiteDatabase(3, 1000);
             //while the user is in the system entering messages
             while (true)
             {
