@@ -8,7 +8,7 @@ public class SQLiteDatabase
 {
     //set this to control maximum size of queue
     private static int max_mCount = 3;
-    private static int mCount;
+    private int mCount;
     public SQLiteConnection m_dbConnection;
     //constructor
     //creates database, sets message count to 0, creates the table
