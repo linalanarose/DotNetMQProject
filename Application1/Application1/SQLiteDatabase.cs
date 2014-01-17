@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Windows.Forms;
+//Future: Make generic type
 
 public class SQLiteDatabase
 {
@@ -66,12 +67,26 @@ public class SQLiteDatabase
         mCount--;
     }
 
-    public void listMessage()
+    //Receive all the messages and clear the database
+    //para millionseconds wait between each message read
+    public String[] receiveAllMsgs(int m_seconds)
     {
-        m_dbConnection.Open();
-        executeSQL("SELECT * FROM messages");
-        m_dbConnection.Close();
+        int rowCount = this.numOfMsgs();
+        int count = 0;
+        String[] ret = new String[rowCount];
+        SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", m_dbConnection);
+        SQLiteDataReader reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            ret[count] = "" + reader["message"];
+            System.Threading.Thread.Sleep(m_seconds);
+            count++;
+        }
+        String sql = "DELETE FROM messages";
+        executeSQL(sql);
+        return ret;
     }
+
 
     private void decrementOrder()
     {
@@ -86,4 +101,10 @@ public class SQLiteDatabase
         command.ExecuteNonQuery();
     }
 
+    private int numOfMsgs()
+    {
+        SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", database.m_dbConnection);
+        int rowCount = Convert.ToInt32(command.ExecuteScalar());
+        return rowCount;
+    }
 }
