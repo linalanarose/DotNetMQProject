@@ -12,7 +12,7 @@ namespace Receiver
         SQLiteDatabase database;
         public Receiver()
         {
-            database = new SQLiteDatabase();
+
         }
     }
 }

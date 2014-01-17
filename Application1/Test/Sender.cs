@@ -5,9 +5,9 @@ using System.Text;
 //using System.Threading.Tasks;
 using System.Data.SQLite;
 
-namespace ConsoleApplication1
+namespace Sender
 {
-    class Program
+    class Sender
     {
         static void Main(string[] args)
         {
