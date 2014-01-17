@@ -46,9 +46,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Application1\Sender.csproj">
+    <ProjectReference Include="..\Application1\Database.csproj">
       <Project>{271f0071-ccb5-4601-bb21-f71b7de176a9}</Project>
-      <Name>Sender</Name>
+      <Name>Database</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
