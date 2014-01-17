@@ -10,7 +10,7 @@ public class SQLiteDatabase
     private static int max_mCount = 10;
 
     private static int mCount;
-    SQLiteConnection m_dbConnection;
+    public SQLiteConnection m_dbConnection;
     public SQLiteDatabase()
     {
         SQLiteConnection.CreateFile("MessageDatabase.sqlite");
