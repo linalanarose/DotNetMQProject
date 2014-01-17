@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Windows.Forms;
-
+using System.IO;
 namespace Database
 {
    /// <summary>
@@ -25,8 +25,13 @@ namespace Database
         /// </remarks>
         public SQLiteDatabase(String caller, int control)
         {
+            
+            if(!File.Exists(Directory.GetCurrentDirectory() + @"\MessageDatabase.sqlite"))
+            {
+                SQLiteConnection.CreateFile("MessageDatabase.sqlite");
+            }
             //make a database or open the existing one
-            m_dbConnection = new SQLiteConnection("DataSource =MessageDatabase.sqlite;Version=3;");
+            m_dbConnection = new SQLiteConnection("Data Source = MessageDatabase.sqlite;Version=3;");
             //create table if not existing
             m_dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
@@ -93,6 +98,7 @@ namespace Database
         /// </remarks>
         public String[] receiveAllMsgs()
         {
+            m_dbConnection.Open();
             int rowCount = this.getNumOfMsgs();
             int count = 0;
             String[] ret = new String[rowCount];
@@ -106,6 +112,7 @@ namespace Database
             }
             String sql = "DELETE FROM messages";
             executeSQL(sql);
+            m_dbConnection.Close();
             return ret;
         }
 

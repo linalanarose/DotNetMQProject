@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SQLite;
 using Database;
+
 namespace Receiver
 {
     /// <summary>
@@ -12,10 +13,11 @@ namespace Receiver
     /// </summary>
     public class Receiver
     {
-        SQLiteDatabase database;
-        public Receiver()
+        static void Main(string[] args)
         {
-
+            SQLiteDatabase database = new SQLiteDatabase("r", 1000);
+            Console.Write("Messages Received\n");
+            database.receiveAllMsgs();
         }
     }
 }
