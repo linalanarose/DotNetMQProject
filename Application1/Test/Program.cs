@@ -28,6 +28,8 @@ namespace ConsoleApplication1
                 SQLiteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                     Console.WriteLine("msgID: " + reader["msgID"] + "\tMessage: " + reader["message"]);
+
+                //Console.WriteLine(rowCount);
                 database.m_dbConnection.Close();
             }
         }
