@@ -11,26 +11,22 @@ namespace ConsoleApplication1
     {
         static void Main(string[] args)
         {
-            Console.Write("Please enter message to send\n");
+            Console.Write("Please enter message to send or type 'exit' to quit\n");
+            //creates a new sqlitedatabase
             SQLiteDatabase database = new SQLiteDatabase();
+            //while the user is in the system entering messages
             while (true)
             {
+                //make sure the message isn't null or exit
                 var messageText = Console.ReadLine();
                 if (string.IsNullOrEmpty(messageText) || messageText == "exit")
                 {
                     break;
                 }
-
+                //create message from console input and add to table
                 database.createMessage(messageText);
-
-                database.m_dbConnection.Open();
-                SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", database.m_dbConnection);
-                SQLiteDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                    Console.WriteLine("msgID: " + reader["msgID"] + "\tMessage: " + reader["message"]);
-
-                //Console.WriteLine(rowCount);
-                database.m_dbConnection.Close();
+                //TEMPORARY open the database and list all current messages
+                database.listMessage();
             }
         }
     }

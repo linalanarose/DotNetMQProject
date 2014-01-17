@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Windows.Forms;
-//Future: Make generic type
 
 public class SQLiteDatabase
 {
-    //set this to control size of queue
+    //set this to control maximum size of queue
     private static int max_mCount = 3;
-
     private static int mCount;
     public SQLiteConnection m_dbConnection;
+    //constructor
+    //creates database, sets message count to 0, creates the table
     public SQLiteDatabase()
     {
         SQLiteConnection.CreateFile("MessageDatabase.sqlite");
@@ -26,6 +26,7 @@ public class SQLiteDatabase
         m_dbConnection.Close();
     }
 
+    //makes a message and inserts it at the next point in the table
     public void createMessage(String message)
     {
         //if the queue isn't "full"
@@ -39,12 +40,12 @@ public class SQLiteDatabase
         }
         else
         {
-            //call delete function
+            //call delete oldest message and try to create again
             deleteOldestMessage();
             createMessage(message);
         }
     }
-    //returns the oldest message and deletes it
+    //returns the oldest message and deletes it ("delivers")
     public String pullOldestMessage()
     {
         m_dbConnection.Open();
@@ -57,38 +58,29 @@ public class SQLiteDatabase
         return msg;
     }
 
+    //deletes the oldest message in the queue
     public void deleteOldestMessage()
     {
         m_dbConnection.Open();
         string sql = "DELETE FROM messages WHERE msgID = 0";
         executeSQL(sql);
         m_dbConnection.Close();
-        decrementOrder();
+        decrementmsgID();
         mCount--;
     }
 
-    //Receive all the messages and clear the database
-    //para millionseconds wait between each message read
-    public String[] receiveAllMsgs(int m_seconds)
+    //selects all messages in queue
+    public void listMessage()
     {
-        int rowCount = this.numOfMsgs();
-        int count = 0;
-        String[] ret = new String[rowCount];
-        SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", m_dbConnection);
+        m_dbConnection.Open();
+        SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", database.m_dbConnection);
         SQLiteDataReader reader = command.ExecuteReader();
         while (reader.Read())
-        {
-            ret[count] = "" + reader["message"];
-            System.Threading.Thread.Sleep(m_seconds);
-            count++;
-        }
-        String sql = "DELETE FROM messages";
-        executeSQL(sql);
-        return ret;
+            Console.WriteLine("msgID: " + reader["msgID"] + "\tMessage: " + reader["message"]);
+        m_dbConnection.Close();
     }
-
-
-    private void decrementOrder()
+    //moves all messages up in the queue (decrementing their msgID
+    private void decrementmsgID()
     {
         m_dbConnection.Open();
         executeSQL("UPDATE messages SET msgID = msgID - 1");
@@ -101,10 +93,4 @@ public class SQLiteDatabase
         command.ExecuteNonQuery();
     }
 
-    private int numOfMsgs()
-    {
-        SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", database.m_dbConnection);
-        int rowCount = Convert.ToInt32(command.ExecuteScalar());
-        return rowCount;
-    }
 }
