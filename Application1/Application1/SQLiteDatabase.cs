@@ -15,12 +15,12 @@ public class SQLiteDatabase
     {
         SQLiteConnection.CreateFile("MessageDatabase.sqlite");
         //make a database
-        m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;");
+        m_dbConnection = new SQLiteConnection("Data Source=MessageDatabase.sqlite;Version=3;New=True");
         //set count
         mCount = 0;
         //create table
         m_dbConnection.Open();
-        string sql = "create table messages (order int, message varchar())";
+        string sql = "CREATE TABLE messages (msgID INT, message VARCHAR(50))";
         executeSQL(sql);
         m_dbConnection.Close();
     }
@@ -31,7 +31,7 @@ public class SQLiteDatabase
         if (mCount < max_mCount)
         {
             m_dbConnection.Open();
-            string sql = "insert into messages (order, message) values (" + mCount + ", '" + message + "')";
+            string sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ", '" + message + "')";
             executeSQL(sql);
             mCount++;
             m_dbConnection.Close();
