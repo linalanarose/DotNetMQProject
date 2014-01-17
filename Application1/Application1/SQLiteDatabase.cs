@@ -26,7 +26,7 @@ namespace Database
         public SQLiteDatabase(String caller, int control)
         {
             //make a database or open the existing one
-            m_dbConnection = new SQLiteConnection("Data Source=/../../../../DBLocation/MessageDatabase.sqlite;Version=3;");
+            m_dbConnection = new SQLiteConnection("DataSource =MessageDatabase.sqlite;Version=3;");
             //create table if not existing
             m_dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
