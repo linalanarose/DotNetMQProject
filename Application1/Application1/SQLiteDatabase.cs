@@ -6,11 +6,12 @@ using System.Windows.Forms;
 
 public class SQLiteDatabase
 {
-    //set this to control size of queue
+    //set this to control maximum size of queue
     private static int max_mCount = 3;
-
     private static int mCount;
     public SQLiteConnection m_dbConnection;
+    //constructor
+    //creates database, sets message count to 0, creates the table
     public SQLiteDatabase()
     {
         SQLiteConnection.CreateFile("MessageDatabase.sqlite");
@@ -25,6 +26,7 @@ public class SQLiteDatabase
         m_dbConnection.Close();
     }
 
+    //makes a message and inserts it at the next point in the table
     public void createMessage(String message)
     {
         //if the queue isn't "full"
@@ -38,12 +40,12 @@ public class SQLiteDatabase
         }
         else
         {
-            //call delete function
+            //call delete oldest message and try to create again
             deleteOldestMessage();
             createMessage(message);
         }
     }
-    //returns the oldest message and deletes it
+    //returns the oldest message and deletes it ("delivers")
     public String pullOldestMessage()
     {
         m_dbConnection.Open();
@@ -56,24 +58,29 @@ public class SQLiteDatabase
         return msg;
     }
 
+    //deletes the oldest message in the queue
     public void deleteOldestMessage()
     {
         m_dbConnection.Open();
         string sql = "DELETE FROM messages WHERE msgID = 0";
         executeSQL(sql);
         m_dbConnection.Close();
-        decrementOrder();
+        decrementmsgID();
         mCount--;
     }
 
+    //selects all messages in queue
     public void listMessage()
     {
         m_dbConnection.Open();
-        executeSQL("SELECT * FROM messages");
+        SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", database.m_dbConnection);
+        SQLiteDataReader reader = command.ExecuteReader();
+        while (reader.Read())
+            Console.WriteLine("msgID: " + reader["msgID"] + "\tMessage: " + reader["message"]);
         m_dbConnection.Close();
     }
-
-    private void decrementOrder()
+    //moves all messages up in the queue (decrementing their msgID
+    private void decrementmsgID()
     {
         m_dbConnection.Open();
         executeSQL("UPDATE messages SET msgID = msgID - 1");
