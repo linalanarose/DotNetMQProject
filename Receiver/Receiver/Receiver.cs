@@ -17,7 +17,7 @@ namespace Receiver
            {
                Console.Write(result[i]+"\n");
            }
-           Console.WriteLine("Done! Hit any key to exit");
+           Console.WriteLine("Messages saved to receivedMsg.txt! Hit any key to exit");
            Console.ReadKey();
         }
     }
