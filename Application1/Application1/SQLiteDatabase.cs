@@ -18,6 +18,8 @@ namespace Database
         private static int mDelay;
         private int mCount;
         private String mDeliveryPath;
+        private FileInfo mDBFile;
+        private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
         public SQLiteConnection dbConnection;
 
         /// <summary>
@@ -27,12 +29,13 @@ namespace Database
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
         public SQLiteDatabase(int maxMsgs)
         {
-            if (!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
+            if (!File.Exists(mFilePath))
             {
-                SQLiteConnection.CreateFile("C:/SQLiteDataBase/MessageDatabase.sqlite");
+                SQLiteConnection.CreateFile(mFilePath);
             }
             //make a database or open the existing one
-            dbConnection = new SQLiteConnection("Data Source = C:/SQLiteDataBase/MessageDatabase.sqlite;Version=3;");
+            dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
+            mDBFile = new FileInfo(mFilePath);
             //create table if not existing
             dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
@@ -49,13 +52,13 @@ namespace Database
 
         public SQLiteDatabase(String filePath, int delay)
         {
-            
-            if(!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
+
+            if (!File.Exists(mFilePath))
             {
-                SQLiteConnection.CreateFile("C:/SQLiteDataBase/MessageDatabase.sqlite");
+                SQLiteConnection.CreateFile(mFilePath);
             }
             //make a database or open the existing one
-            dbConnection = new SQLiteConnection("Data Source = C:/SQLiteDataBase/MessageDatabase.sqlite;Version=3;");
+            dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
             //create table if not existing
             dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
@@ -176,5 +179,7 @@ namespace Database
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", dbConnection);
             return Convert.ToInt32(command.ExecuteScalar());
         }
+
+
     }
 }
