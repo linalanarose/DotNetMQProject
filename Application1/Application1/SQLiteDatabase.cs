@@ -62,7 +62,7 @@ namespace Database
         //    mDBFileInfo = new FileInfo(mFilePath);
         //    //create table if not existing
         //    dbConnection.Open();
-        //    string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
+        //    string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message VARCHAR(50))";
         //    ExecuteSQL(sql);
         //    mSize = (int) mDBFile.Length;
         //    dbConnection.Close();
@@ -135,7 +135,7 @@ namespace Database
         //                msg = msg.Trim();
         //                if (string.IsNullOrEmpty(msg) == false)
         //                {
-        //                    String sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ",'" + msg + "')"; 
+        //                    String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString() + ",'" + msg + "')"; 
         //                }
         //            }
         //        }              
