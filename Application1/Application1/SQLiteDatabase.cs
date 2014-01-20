@@ -27,8 +27,9 @@ namespace Database
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
         public SQLiteConnection dbConnection;
 
+        #region Constructors
         /// <summary>
-        /// Custructor: called by the sender that creates the database and sets up the max number of messages
+        /// Constructor: called by the sender that creates the database and sets up the max number of messages
         /// for the database. If the database doesn't exist it creates that and a table.
         /// </summary>
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
@@ -93,7 +94,8 @@ namespace Database
             mDelay = delay;
             mDeliveryPath = filePath;
         }
-
+        #endregion
+        #region Methods
         /// <summary>
         /// Makes a message and inserts it at the next point in the table
         /// </summary>
@@ -120,28 +122,36 @@ namespace Database
             }
         }
 
-        //public void CreateMessage(String msgPath)
-        //{
-        //    FileInfo msgFileInfo = new FileInfo(msgPath);
-        //    //if the queue isn't "full"
-        //    if (mSize + (int)msgFileInfo.Length < mMaxSize)
-        //    {
-        //        dbConnection.Open();
-        //        using (StreamReader reader = new StreamReader(msgPath, false))
-        //        {
-        //            string msg = "";
-        //            while ((msg = reader.ReadLine()) != null)
-        //            {
-        //                msg = msg.Trim();
-        //                if (string.IsNullOrEmpty(msg) == false)
-        //                {
-        //                    String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString() + ",'" + msg + "')"; 
-        //                }
-        //            }
-        //        }              
-        //        mSize += (int)msgFileInfo.Length;
-        //    }
-        //}
+		  //public void CreateMessage(String msgPath)
+		  //{
+		  //	 FileInfo msgFileInfo = new FileInfo(msgPath);
+		  //	 //if the queue isn't "full"
+		  //	 if (mSize + (int)msgFileInfo.Length < mMaxSize)
+		  //	 {
+		  //		  dbConnection.Open();
+		  //		  using (StreamReader reader = new StreamReader(msgPath, false))
+		  //		  {
+		  //				string msg = "";
+		  //				while ((msg = reader.ReadLine()) != null)
+		  //				{
+		  //					 msg = msg.Trim();
+		  //					 if (string.IsNullOrEmpty(msg) == false)
+		  //					 {
+		  //						  String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString() + ",'" + msg + "')";
+		  //					 }
+		  //				}
+		  //		  }
+		  //		  mSize += (int)msgFileInfo.Length;
+		  //	 }
+		  //	 else
+		  //	 {
+		  //		  while (mSize + (int)msgFileInfo.Length > mMaxSize)
+		  //		  {
+		  //				DeleteOldestMessage();
+		  //		  }
+		  //		  CreateMessage();
+		  //	 }
+		  //}
 
         /// <summary>
         /// Selects all messages in queue and lists them in console.
@@ -216,6 +226,15 @@ namespace Database
             mCount--;
         }
 
+		  //private void DeleteOldestMessage()
+		  //{
+		  //	 dbConnection.Open();
+		  //	 string sql = "DELETE FROM messages WHERE ROWID IN (SELECT ROWID FROM messages ORDER BY ROWID ASC LIMIT 1)";
+		  //	 ExecuteSQL(sql);
+		  //	 dbConnection.Close();
+		  //	 mSize = mDBFileInfo.Length;
+		  //}
+
         /// <summary>
         /// Moves all messages up in the queue decrementing their msgID
         /// </summary>
@@ -243,7 +262,7 @@ namespace Database
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", dbConnection);
             return Convert.ToInt32(command.ExecuteScalar());
         }
-
-
+        #endregion
     }
 }
+        
