@@ -27,8 +27,9 @@ namespace Database
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
         public SQLiteConnection dbConnection;
 
+        #region Constructors
         /// <summary>
-        /// Custructor: called by the sender that creates the database and sets up the max number of messages
+        /// Constructor: called by the sender that creates the database and sets up the max number of messages
         /// for the database. If the database doesn't exist it creates that and a table.
         /// </summary>
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
@@ -93,7 +94,8 @@ namespace Database
             mDelay = delay;
             mDeliveryPath = filePath;
         }
-
+        #endregion
+        #region Methods
         /// <summary>
         /// Makes a message and inserts it at the next point in the table
         /// </summary>
@@ -243,7 +245,7 @@ namespace Database
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", dbConnection);
             return Convert.ToInt32(command.ExecuteScalar());
         }
-
-
+        #endregion
     }
 }
+        
