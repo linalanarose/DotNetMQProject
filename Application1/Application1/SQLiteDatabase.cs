@@ -9,6 +9,9 @@ namespace Database
    /// <summary>
    /// This class is for managing the SQLite based cache instance on the computer.
    /// </summary>
+   /// <remarks>
+   /// To use you must create a SQLiteDataBase directory in the C drive.
+   /// </remarks>
     public class SQLiteDatabase
     {
         private static int max_mCount;
