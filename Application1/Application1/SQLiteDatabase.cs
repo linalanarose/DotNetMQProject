@@ -172,7 +172,7 @@ namespace Database
             ExecuteSQL(sql);
             dbConnection.Close();
         }
-        */
+        */ 
         
         /// <summary>
         /// Deliver all the messages and clear the database
