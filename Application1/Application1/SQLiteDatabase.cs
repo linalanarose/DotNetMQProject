@@ -124,6 +124,7 @@ namespace Database
             SQLiteDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
+                Console.WriteLine("Message: " + reader["message"]);
                 ret[count] = reader["message"].ToString();
                 count++;
                 System.Threading.Thread.Sleep(delay);
