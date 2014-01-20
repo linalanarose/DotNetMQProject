@@ -8,19 +8,22 @@ using System.Xml;
 
 namespace Database
 {
-   /// <summary>
-   /// This class is for managing the SQLite based cache instance on the computer.
-   /// </summary>
-   /// <remarks>
-   /// To use you must create a SQLiteDataBase directory in the C drive.
-   /// </remarks>
+    /// <summary>
+    /// This class is for managing the SQLite based cache instance on the computer.
+    /// </summary>
+    /// <remarks>
+    /// To use you must create a SQLiteDataBase directory in the C drive.
+    /// </remarks>
     public class SQLiteDatabase
     {
-        private static int mMaxCount;
+
         private static int mDelay;
+        private static int mMaxCount;
         private int mCount;
+        //private static int mMaxSize;
+        //private int mSize;
         private String mDeliveryPath;
-        private FileInfo mDBFile;
+        private FileInfo mDBFileInfo;
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
         public SQLiteConnection dbConnection;
 
@@ -32,13 +35,13 @@ namespace Database
         public SQLiteDatabase(int maxMsgs)
         {
 
-            if (File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite") == false)
+            if (File.Exists(mFilePath) == false)
             {
                 SQLiteConnection.CreateFile(mFilePath);
             }
             //make a database or open the existing one
             dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
-            mDBFile = new FileInfo(mFilePath);
+            mDBFileInfo = new FileInfo(mFilePath);
             //create table if not existing
             dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
@@ -47,6 +50,25 @@ namespace Database
             dbConnection.Close();
             mMaxCount = maxMsgs;
         }
+
+        //public SQLiteDatabase(int maxSize) 
+        //{
+        //    if (File.Exists(mFilePath) == false)
+        //    {
+        //        SQLiteConnection.CreateFile(mFilePath);
+        //    }
+        //    //make a database or open the existing one
+        //    dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
+        //    mDBFileInfo = new FileInfo(mFilePath);
+        //    //create table if not existing
+        //    dbConnection.Open();
+        //    string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
+        //    ExecuteSQL(sql);
+        //    mSize = (int) mDBFile.Length;
+        //    dbConnection.Close();
+        //    mMaxSize = maxSize;
+        //}
+
         /// <summary>
         /// Constructor: Called by the receiver, checks for an existing database and creates one if necessary.
         /// </summary>
@@ -55,7 +77,7 @@ namespace Database
 
         public SQLiteDatabase(String filePath, int delay)
         {
-            if(File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite") == false)
+            if (File.Exists(mFilePath) == false)
             {
                 SQLiteConnection.CreateFile(mFilePath);
             }
@@ -98,16 +120,28 @@ namespace Database
             }
         }
 
-        public void CreateMessage(File message)
-        {
-            //if the queue isn't "full"
-            if (mSize < mMaxSize)
-            {
-                XmlTextReader reader = new XmlTextReader (message)
-                dbConnection.Open();
-                String sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ",'" + msgText + "')";
-            }
-        }
+        //public void CreateMessage(String msgPath)
+        //{
+        //    FileInfo msgFileInfo = new FileInfo(msgPath);
+        //    //if the queue isn't "full"
+        //    if (mSize + (int)msgFileInfo.Length < mMaxSize)
+        //    {
+        //        dbConnection.Open();
+        //        using (StreamReader reader = new StreamReader(msgPath, false))
+        //        {
+        //            string msg = "";
+        //            while ((msg = reader.ReadLine()) != null)
+        //            {
+        //                msg = msg.Trim();
+        //                if (string.IsNullOrEmpty(msg) == false)
+        //                {
+        //                    String sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ",'" + msg + "')"; 
+        //                }
+        //            }
+        //        }              
+        //        mSize += (int)msgFileInfo.Length;
+        //    }
+        //}
 
         /// <summary>
         /// Selects all messages in queue and lists them in console.
@@ -121,7 +155,7 @@ namespace Database
                 Console.WriteLine("msgID: " + reader["msgID"] + "\tMessage: " + reader["message"]);
             dbConnection.Close();
         }
-        
+
         /// <summary>
         /// Deliver all the messages and clear the database
         /// </summary>
