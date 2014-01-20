@@ -17,8 +17,8 @@ namespace Receiver
            {
                Console.Write(result[i]+"\n");
            }
-           Console.WriteLine("Done");
-            Console.ReadKey();
+           Console.WriteLine("Done! Hit any key to exit");
+           Console.ReadKey();
         }
     }
 }
