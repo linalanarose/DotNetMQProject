@@ -128,6 +128,7 @@ namespace Database
                 count++;
                 System.Threading.Thread.Sleep(delay);
             }
+            System.IO.File.WriteAllLines(deliveryPath, ret);
             String sql = "DELETE FROM messages";
             executeSQL(sql);
             m_dbConnection.Close();
