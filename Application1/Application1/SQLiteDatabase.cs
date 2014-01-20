@@ -18,10 +18,8 @@ namespace Database
     {
 
         private static int mDelay;
-        private static int mMaxCount;
-        private int mCount;
-        //private static int mMaxSize;
-        //private int mSize;
+		  private static int mMaxSize;
+		  private int mSize;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
@@ -33,50 +31,31 @@ namespace Database
         /// for the database. If the database doesn't exist it creates that and a table.
         /// </summary>
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
-        public SQLiteDatabase(int maxMsgs)
-        {
-
-            if (File.Exists(mFilePath) == false)
-            {
-                SQLiteConnection.CreateFile(mFilePath);
-            }
-            //make a database or open the existing one
-            dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
-            mDBFileInfo = new FileInfo(mFilePath);
-            //create table if not existing
-            dbConnection.Open();
-            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
-            ExecuteSQL(sql);
-            mCount = GetNumOfMsgs();
-            dbConnection.Close();
-            mMaxCount = maxMsgs;
-        }
-
-        //public SQLiteDatabase(int maxSize) 
-        //{
-        //    if (File.Exists(mFilePath) == false)
-        //    {
-        //        SQLiteConnection.CreateFile(mFilePath);
-        //    }
-        //    //make a database or open the existing one
-        //    dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
-        //    mDBFileInfo = new FileInfo(mFilePath);
-        //    //create table if not existing
-        //    dbConnection.Open();
-        //    string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message VARCHAR(50))";
-        //    ExecuteSQL(sql);
-        //    mSize = (int) mDBFile.Length;
-        //    dbConnection.Close();
-        //    mMaxSize = maxSize;
-        //}
+		  public SQLiteDatabase(int maxSize)
+		  {
+				if (File.Exists(mFilePath) == false)
+				{
+					 SQLiteConnection.CreateFile(mFilePath);
+				}
+				//make a database or open the existing one
+				dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
+				mDBFileInfo = new FileInfo(mFilePath);
+				//create table if not existing
+				dbConnection.Open();
+				string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message VARCHAR(50))";
+				ExecuteSQL(sql);
+				mSize = (int)mDBFileInfo.Length;
+				dbConnection.Close();
+				mMaxSize = maxSize;
+		  }
 
         /// <summary>
         /// Constructor: Called by the receiver, checks for an existing database and creates one if necessary.
         /// </summary>
-        /// <param name="filePath"> The path to the desired output file.</param>
+        /// <param name="filePath"> The path to the desired output directory.</param>
         /// <param name="aDelay">The desired delay between message deliveries</param>
 
-        public SQLiteDatabase(String filePath, int delay)
+        public SQLiteDatabase(String deliveryPath, int delay)
         {
             if (File.Exists(mFilePath) == false)
             {
@@ -86,23 +65,25 @@ namespace Database
             dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
             //create table if not existing
             dbConnection.Open();
-            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
+            string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message TEXT)";
             ExecuteSQL(sql);
-            mCount = GetNumOfMsgs();
+				mDBFileInfo = new FileInfo(mFilePath);
+				mSize = (int)mDBFileInfo.Length;
             dbConnection.Close();
 
             mDelay = delay;
-            mDeliveryPath = filePath;
+            mDeliveryPath = deliveryPath;
         }
         #endregion
         #region Methods
         /// <summary>
         /// Makes a message and inserts it at the next point in the table
         /// </summary>
-        /// <param name="message">The message to be sent</param>
+        /// <param name="message">The path to the XML file to be sent</param>
         /// <remarks>
         /// We will have to make the param type generic in the future
         /// </remarks>
+<<<<<<< HEAD
         public void CreateMessage(String message)
         {
             //if the queue isn't "full"
@@ -167,6 +148,36 @@ namespace Database
         }
 
    /*
+=======
+		  public void CreateMessage(String msgPath)
+		  {
+				FileInfo msgFileInfo = new FileInfo(msgPath);
+				//if the queue isn't "full"
+				if (mSize + (int)msgFileInfo.Length < mMaxSize)
+				{
+					 dbConnection.Open();
+					 StreamReader sr = new StreamReader(msgPath);
+					 String msg = sr.ReadToEnd();
+					 msg = msg.Replace("'", "*");
+					 Console.WriteLine(msg);
+					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(':', ',').Replace('.', ',') + ",'" + msg + "')";
+					 ExecuteSQL(sql);
+					 dbConnection.Close();
+					 mSize += (int)msgFileInfo.Length;
+				}
+				else
+				{
+					 while (mSize + (int)msgFileInfo.Length > mMaxSize)
+					 {
+						  DeleteOldestMessage();
+					 }
+					 CreateMessage(msgPath);
+				}
+		  }
+		  /// <summary>
+		  /// Delivers each message to a file denoted by the time it was received
+		  /// </summary>
+>>>>>>> 9bd524d0965d57f025b9db67ac6dc74a3d2e21c3
         public void ReceiveAllMsgs()
         {
             dbConnection.Open();
@@ -182,68 +193,27 @@ namespace Database
             ExecuteSQL(sql);
             dbConnection.Close();
         }
-    */
-        
-        /// <summary>
-        /// Deliver all the messages and clear the database
-        /// </summary>
-        /// <returns>Array of String messages</returns>
-        /// <remarks>
-        /// This will eventually have to be modified for generic types.
-        /// </remarks>
-        public String[] ReceiveAllMsgs()
-        {
-            dbConnection.Open();
-            int rowCount = this.GetNumOfMsgs();
-            int count = 0;
-            String[] ret = new String[rowCount];
-            SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", dbConnection);
-            SQLiteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Console.WriteLine("Message: " + reader["message"]);
-                ret[count] = reader["message"].ToString();
-                count++;
-                System.Threading.Thread.Sleep(mDelay);
-            }
-            System.IO.File.WriteAllLines(mDeliveryPath, ret);
-            String sql = "DELETE FROM messages";
-            ExecuteSQL(sql);
-            dbConnection.Close();
-            return ret;
-        }
         
         /// <summary>
         /// Deletes the oldest message in the queue
         /// </summary>
-        private void DeleteOldestMessage()
-        {
-            dbConnection.Open();
-            string sql = "DELETE FROM messages WHERE msgID = 0";
-            ExecuteSQL(sql);
-            dbConnection.Close();
-            DecrementMsgID();
-            mCount--;
-        }
+		  private void DeleteOldestMessage()
+		  {
+				dbConnection.Open();
+				string sql = "DELETE FROM messages WHERE ROWID IN (SELECT ROWID FROM messages ORDER BY ROWID ASC LIMIT 1)";
+				ExecuteSQL(sql);
+				dbConnection.Close();
+				mSize = (int)mDBFileInfo.Length;
+		  }
 
-		  //private void DeleteOldestMessage()
-		  //{
-		  //	 dbConnection.Open();
-		  //	 string sql = "DELETE FROM messages WHERE ROWID IN (SELECT ROWID FROM messages ORDER BY ROWID ASC LIMIT 1)";
-		  //	 ExecuteSQL(sql);
-		  //	 dbConnection.Close();
-		  //	 mSize = mDBFileInfo.Length;
-		  //}
+		  private string ConvertXMLtoString(string path)
+		  {
+				XmlDocument xmlFile = new XmlDocument();
+				xmlFile.Load(path);
+				string xmlString = xmlFile.OuterXml;
+				return xmlString;
+		  }
 
-        /// <summary>
-        /// Moves all messages up in the queue decrementing their msgID
-        /// </summary>
-        private void DecrementMsgID()
-        {
-            dbConnection.Open();
-            ExecuteSQL("UPDATE messages SET msgID = msgID - 1");
-            dbConnection.Close();
-        }
         /// <summary>
         /// Simplifies the process of executing SQLite code
         /// </summary>
@@ -252,15 +222,6 @@ namespace Database
         {
             SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
             command.ExecuteNonQuery();
-        }
-        /// <summary>
-        /// Get the number of messages in the cache
-        /// </summary>
-        /// <returns>The number of messages in the cache</returns>
-        private int GetNumOfMsgs()
-        {
-            SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", dbConnection);
-            return Convert.ToInt32(command.ExecuteScalar());
         }
         #endregion
     }
