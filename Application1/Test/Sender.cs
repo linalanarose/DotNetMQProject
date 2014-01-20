@@ -16,7 +16,7 @@ namespace Sender
         {
             Console.Write("Please enter message to send or type 'exit' to quit\n");
             //creates a new sqlitedatabase
-            SQLiteDatabase database = new SQLiteDatabase(3);
+            SQLiteDatabase database = new SQLiteDatabase(10);
             //while the user is in the system entering messages
             while (true)
             {
