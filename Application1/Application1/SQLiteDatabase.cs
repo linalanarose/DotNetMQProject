@@ -4,6 +4,8 @@ using System.Data;
 using System.Data.SQLite;
 using System.Windows.Forms;
 using System.IO;
+using System.Xml;
+
 namespace Database
 {
    /// <summary>
@@ -27,7 +29,7 @@ namespace Database
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
         public SQLiteDatabase(int maxMsgs)
         {
-            if (!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
+            if (File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite") == false)
             {
                 SQLiteConnection.CreateFile("C:/SQLiteDataBase/MessageDatabase.sqlite");
             }
@@ -50,7 +52,7 @@ namespace Database
         public SQLiteDatabase(String filePath, int delay)
         {
             
-            if(!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
+            if(File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite") == false)
             {
                 SQLiteConnection.CreateFile("C:/SQLiteDataBase/MessageDatabase.sqlite");
             }
@@ -80,7 +82,7 @@ namespace Database
             if (mCount < mMaxCount)
             {
                 dbConnection.Open();
-                string sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ", '" + message + "')";
+                String sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ", '" + message + "')";
                 ExecuteSQL(sql);
                 mCount++;
                 dbConnection.Close();
@@ -93,6 +95,16 @@ namespace Database
             }
         }
 
+        public void CreateMessage(File message)
+        {
+            //if the queue isn't "full"
+            if (mSize < mMaxSize)
+            {
+                XmlTextReader reader = new XmlTextReader (message)
+                dbConnection.Open();
+                String sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ",'" + msgText + "')";
+            }
+        }
 
         /// <summary>
         /// Selects all messages in queue and lists them in console.
