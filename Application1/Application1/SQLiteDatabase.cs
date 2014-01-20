@@ -156,6 +156,24 @@ namespace Database
             dbConnection.Close();
         }
 
+        /*
+        public void ReceiveAllMsgs()
+        {
+            dbConnection.Open();
+            SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", dbConnection);
+            SQLiteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Console.WriteLine("Message: " + reader["message"]);
+                System.IO.File.WriteAllText(mDeliveryPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
+                System.Threading.Thread.Sleep(mDelay);
+            }
+            String sql = "DELETE FROM messages";
+            ExecuteSQL(sql);
+            dbConnection.Close();
+        }
+        */
+        
         /// <summary>
         /// Deliver all the messages and clear the database
         /// </summary>
@@ -184,7 +202,7 @@ namespace Database
             dbConnection.Close();
             return ret;
         }
-
+        
         /// <summary>
         /// Deletes the oldest message in the queue
         /// </summary>
