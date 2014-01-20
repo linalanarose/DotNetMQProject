@@ -14,16 +14,37 @@ namespace Database
         private static int max_mCount;
         private static int delay;
         private int mCount;
+        private String deliveryPath;
         public SQLiteConnection m_dbConnection;
 
         /// <summary>
-        /// Constructor: creates database, sets message count to 0, delay, and max msg count, creates the table
+        /// Custructor: called by the sender that creates the database and sets up the max number of messages
+        /// for the database. If the database doesn't exist it creates that and a table.
         /// </summary>
-        /// <param name="control">The input from the respective caller altering their usage of database</param>
-        /// <remarks>
-        /// If Sender calls the constructor int is set to max_Count, if Receiver calls int is set to delay
-        /// </remarks>
-        public SQLiteDatabase(String caller, int control)
+        /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
+        public SQLiteDatabase(int maxMsgs)
+        {
+            if (!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
+            {
+                SQLiteConnection.CreateFile("C:/SQLiteDataBase/MessageDatabase.sqlite");
+            }
+            //make a database or open the existing one
+            m_dbConnection = new SQLiteConnection("Data Source = C:/SQLiteDataBase/MessageDatabase.sqlite;Version=3;");
+            //create table if not existing
+            m_dbConnection.Open();
+            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
+            executeSQL(sql);
+            mCount = getNumOfMsgs();
+            m_dbConnection.Close();
+            max_mCount = maxMsgs;
+        }
+        /// <summary>
+        /// Constructor: Called by the receiver, checks for an existing database and creates one if necessary.
+        /// </summary>
+        /// <param name="filePath"> The path to the desired output file.</param>
+        /// <param name="aDelay">The desired delay between message deliveries</param>
+
+        public SQLiteDatabase(String filePath, int aDelay)
         {
             
             if(!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
@@ -38,15 +59,9 @@ namespace Database
             executeSQL(sql);
             mCount = getNumOfMsgs();
             m_dbConnection.Close();
-            //set max count if from sender, set delay if from receiving end.
-            if (caller.Equals("s"))
-            {
-                max_mCount = control;
-            }
-            else
-            {
-                delay = control;
-            }
+
+            delay = aDelay;
+            deliveryPath = filePath;
         }
 
         /// <summary>
