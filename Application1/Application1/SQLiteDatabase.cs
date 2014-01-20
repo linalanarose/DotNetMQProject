@@ -26,12 +26,12 @@ namespace Database
         public SQLiteDatabase(String caller, int control)
         {
             
-            if(!File.Exists(Directory.GetCurrentDirectory() + @"\MessageDatabase.sqlite"))
+            if(!File.Exists("C:/SQLiteDataBase/MessageDatabase.sqlite"))
             {
-                SQLiteConnection.CreateFile("MessageDatabase.sqlite");
+                SQLiteConnection.CreateFile("C:/SQLiteDataBase/MessageDatabase.sqlite");
             }
             //make a database or open the existing one
-            m_dbConnection = new SQLiteConnection("Data Source = MessageDatabase.sqlite;Version=3;");
+            m_dbConnection = new SQLiteConnection("Data Source = C:/SQLiteDataBase/MessageDatabase.sqlite;Version=3;");
             //create table if not existing
             m_dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
@@ -154,8 +154,7 @@ namespace Database
         private int getNumOfMsgs()
         {
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(msgID) from messages", m_dbConnection);
-            int rowCount = Convert.ToInt32(command.ExecuteScalar());
-            return rowCount;
+            return Convert.ToInt32(command.ExecuteScalar());
         }
     }
 }

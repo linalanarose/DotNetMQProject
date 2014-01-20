@@ -30,6 +30,7 @@ namespace Sender
                 database.createMessage(messageText);
                 //TEMPORARY open the database and list all current messages
                 database.listMessage();
+                
             }
         }
     }
