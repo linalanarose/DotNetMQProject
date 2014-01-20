@@ -20,7 +20,7 @@ namespace Sender
             //while the user is in the system entering messages
             while (true)
             {
-                //make sure the message isn't null or exitg
+                //make sure the message isn't null or exit
                 var messageText = Console.ReadLine();
                 if (string.IsNullOrEmpty(messageText) || messageText == "exit")
                 {
