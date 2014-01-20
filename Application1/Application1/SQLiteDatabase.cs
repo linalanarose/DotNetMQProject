@@ -59,7 +59,7 @@ namespace Database
             //create table if not existing
             dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT, message VARCHAR(50))";
-            executeSQL(sql);
+            ExecuteSQL(sql);
             mCount = GetNumOfMsgs();
             dbConnection.Close();
 
