@@ -17,13 +17,20 @@ namespace Sender
         {
             Console.Write("Please enter message to send or type 'exit' to quit\n");
             //creates a new sqlitedatabase
-            SQLiteDatabase database = new SQLiteDatabase(10000);
+            SQLiteDatabase database = new SQLiteDatabase(100000);
             //while the user is in the system entering messages
             String[] directoryFiles = Directory.GetFiles("C:/SQLiteDataBase","*.xml");
-            foreach(String filePath in directoryFiles)
+            DirectoryInfo directoryFileInfo = new DirectoryInfo("C:/SQLiteDataBase");
+            FileInfo[] fileNames = directoryFileInfo.GetFiles("*.xml");
+            foreach(FileInfo names in fileNames)
             {
-                database.CreateMessage(filePath);
+                database.CreateMessage("C:/SQLiteDataBase/" + names.Name);
             }
+            foreach (FileInfo names in fileNames)
+            {
+                System.IO.Directory.Move("C:/SQLiteDataBase/" + names.Name, "C:/SQLiteDataBaseArchive/" + names.Name);
+            }
+            
         }
     }
 }

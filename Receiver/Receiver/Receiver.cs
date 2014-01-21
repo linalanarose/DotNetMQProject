@@ -16,7 +16,7 @@ namespace Receiver
            SQLiteDatabase database = new SQLiteDatabase("C:/SQLiteDataBase/", 1000);
            database.ReceiveAllMsgs();
            //database.ReceiveAllMsgs();
-           Console.WriteLine("Messages saved to receivedMsg.txt! Hit any key to exit");
+           Console.WriteLine("Messages saved! Hit any key to exit");
            Console.ReadKey();
         }
     }
