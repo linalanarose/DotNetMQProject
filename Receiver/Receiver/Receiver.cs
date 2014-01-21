@@ -33,8 +33,9 @@ namespace Receiver
 				foreach (string msg in msgs)
 				{
 					 //add REAL saving function
-					 Console.WriteLine(msg);
-                Console.WriteLine();
+					 SaveFile(msg);
+					 int fileNameCount = fileNameCount -1;
+					 Console.WriteLine("Saved file " + fileName + ".xml");
 				}
 		  }
 		  /// <summary>
@@ -59,7 +60,7 @@ namespace Receiver
 					 database.dbConnection.Close(); 
 				}				
 		  }
-		  private void SaveFile(string msg)
+		  private static void SaveFile(string msg)
 		  {
 				System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
 				fileNameCount++;
