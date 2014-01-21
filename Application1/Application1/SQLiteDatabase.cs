@@ -94,7 +94,7 @@ namespace Database
 					 String msg = sr.ReadToEnd();
 					 msg = msg.Replace("'", "''");
 					 Console.WriteLine(msg);
-					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(':', '-').Replace('.', '-') + ",'" + msg + "')";
+					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(":","").Replace(".", "") + ",'" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
 					 mSize += (int)msgFileInfo.Length;
@@ -122,9 +122,8 @@ namespace Database
                 System.IO.File.WriteAllText(mDeliveryPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
                 System.Threading.Thread.Sleep(mDelay);
             }
-            String sql = "DELETE FROM messages";
-            ExecuteSQL(sql);
             dbConnection.Close();
+				System.IO.File.Delete(mFilePath);
         }
         
         /// <summary>
