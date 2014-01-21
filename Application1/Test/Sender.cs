@@ -14,7 +14,7 @@ namespace Sender
     /// </summary>
     class Sender
     {
-		  SQLiteDatabase database = new SQLiteDatabase(10000);
+		  static SQLiteDatabase database = new SQLiteDatabase(10000);
         static void Main(string[] args)
         {
             Console.Write("Please enter the path to an XML file to send or type 'exit' to quit\n");
@@ -32,15 +32,12 @@ namespace Sender
                 }
 					 //check that the path works before calling SendMessage
 
-
                 //create message from msg path and add to table
 					 SendMessage(msgPath);             
 
-                //create message from console input and add to table
-                database.CreateMessage(msgPath);
             }
         }
-		  private void SendMessage(string msgPath)
+		  private static void SendMessage(string msgPath)
 		  {
 				StreamReader sr = new StreamReader(msgPath);
 				string msg = sr.ReadToEnd();
