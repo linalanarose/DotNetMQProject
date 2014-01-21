@@ -19,7 +19,7 @@ namespace Database
 
         private static int mDelay;
 		  private static int mMaxSize;
-		  private int mSize;
+		  private int mDBSize;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
@@ -44,7 +44,7 @@ namespace Database
 				dbConnection.Open();
 				string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50))";
 				ExecuteSQL(sql);
-				mSize = (int)mDBFileInfo.Length;
+				mDBSize = (int)mDBFileInfo.Length;
 				dbConnection.Close();
 				mMaxSize = maxSize;
 		  }
@@ -68,7 +68,7 @@ namespace Database
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
             ExecuteSQL(sql);
 				mDBFileInfo = new FileInfo(mFilePath);
-				mSize = (int)mDBFileInfo.Length;
+				mDBSize = (int)mDBFileInfo.Length;
             dbConnection.Close();
 
             mDelay = delay;
@@ -83,51 +83,32 @@ namespace Database
         /// <remarks>
         /// We will have to make the param type generic in the future
         /// </remarks>
-		  public void CreateMessage(string msgPath)
+		  public void AddMessage(string msg, int size)
 		  {
-				FileInfo msgFileInfo = new FileInfo(msgPath);
-				//if the queue isn't "full"
-				if (mSize + (int)msgFileInfo.Length < mMaxSize)
+				if (mDBSize + size < mMaxSize)
 				{
 					 dbConnection.Open();
-					 StreamReader sr = new StreamReader(msgPath);
-					 string msg = sr.ReadToEnd();
-					 msg = msg.Replace("'", "''");
-					 Console.WriteLine(msg);
 					 string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
-                     mDBFileInfo = new FileInfo(mFilePath);
-					 mSize = (int)msgFileInfo.Length;
+                mDBFileInfo = new FileInfo(mFilePath);
+					 mDBSize = (int)mDBFileInfo.Length;
 				}
 				else
 				{
-					 while (mSize + (int)msgFileInfo.Length > mMaxSize)
+					 while (mDBSize + size > mMaxSize)
 					 {
 						 DeleteOldestMessage();
                          mDBFileInfo = new FileInfo(mFilePath);
-                         mSize = (int)mDBFileInfo.Length;
+                         mDBSize = (int)mDBFileInfo.Length;
 					 }
-					 CreateMessage(msgPath);
+					 AddMessage(msg, size);
 				}
 		  }
-		  /// <summary>
-		  /// Delivers each message to a file denoted by the time it was received
-		  /// </summary>
-        public void ReceiveAllMsgs()
-        {
-            dbConnection.Open();
-            SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", dbConnection);
-            SQLiteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Console.WriteLine("Message: " + reader["message"]);
-                System.IO.File.WriteAllText(mDeliveryPath + reader["msgID"].ToString() + ".xml", reader["message"].ToString());
-                System.Threading.Thread.Sleep(mDelay);
-            }
-            dbConnection.Close();
-				System.IO.File.Delete(mFilePath);
-        }
+		  public string getOldestMessage()
+		  {
+				return "the message";
+		  }
         
         /// <summary>
         /// Deletes the oldest message in the queue
@@ -137,10 +118,10 @@ namespace Database
 				dbConnection.Open();
                 string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
 				ExecuteSQL(sql);
-                string vaccum = "VACUUM";
-                ExecuteSQL(vaccum);
+                string vacuum = "VACUUM";
+                ExecuteSQL(vacuum);
 				dbConnection.Close();
-				mSize = (int)mDBFileInfo.Length;
+				mDBSize = (int)mDBFileInfo.Length;
 		  }
 
         /// <summary>
