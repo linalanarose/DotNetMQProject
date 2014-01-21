@@ -40,12 +40,18 @@ namespace Database
 				dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
 				mDBFileInfo = new FileInfo(mFilePath);
 				//create table if not existing
-				dbConnection.Open();
-				string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50))";
-				ExecuteSQL(sql);
-				mDBSize = (int)mDBFileInfo.Length;
-				dbConnection.Close();
-				mMaxSize = maxSize;
+                try
+                {
+                    dbConnection.Open();
+                    string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50))";
+                    ExecuteSQL(sql);
+                    mDBSize = (int)mDBFileInfo.Length;
+                }
+                finally
+                {
+                    dbConnection.Close();
+                }
+                mMaxSize = maxSize;
 		  }
 
         /// <summary>
@@ -63,13 +69,18 @@ namespace Database
             //make a database or open the existing one
             dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
             //create table if not existing
-            dbConnection.Open();
-            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
-            ExecuteSQL(sql);
-		    mDBFileInfo = new FileInfo(mFilePath);
-			mDBSize = (int)mDBFileInfo.Length;
-            dbConnection.Close();
-
+            try
+            {
+                dbConnection.Open();
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
+                ExecuteSQL(sql);
+                mDBFileInfo = new FileInfo(mFilePath);
+                mDBSize = (int)mDBFileInfo.Length;
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
             mDelay = delay;
             mDeliveryPath = deliveryPath;
         }
@@ -86,11 +97,17 @@ namespace Database
 		  {
 				if (mDBSize + size < mMaxSize)
 				{
-					 dbConnection.Open();
-					 string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
-					 ExecuteSQL(sql);
-					 dbConnection.Close();
-                     mDBFileInfo = new FileInfo(mFilePath);
+                    try
+                    {
+                        dbConnection.Open();
+                        string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
+                        ExecuteSQL(sql);
+                    }
+                    finally
+                    {
+                        dbConnection.Close();
+                    }
+                        mDBFileInfo = new FileInfo(mFilePath);
 					 mDBSize = (int)mDBFileInfo.Length;
 				}
 				else
@@ -106,12 +123,19 @@ namespace Database
 		  }
 		  public string getOldestMessage()
 		  {
-              dbConnection.Open();
-              string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
-              SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
-              SQLiteDataReader reader = command.ExecuteReader();
-              string message = reader["message"].ToString();
-              dbConnection.Close();
+              string message = string.Empty;
+              try
+              {
+                  dbConnection.Open();
+                  string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
+                  SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
+                  SQLiteDataReader reader = command.ExecuteReader();
+                  message = reader["message"].ToString();
+              }
+              finally
+              {
+                  dbConnection.Close();
+              }
               return message;
 		  }
         
@@ -120,13 +144,19 @@ namespace Database
         /// </summary>
 		  private void DeleteOldestMessage()
 		  {
-				dbConnection.Open();
-                string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
-				ExecuteSQL(sql);
-                string vacuum = "VACUUM";
-                ExecuteSQL(vacuum);
-				dbConnection.Close();
-				mDBSize = (int)mDBFileInfo.Length;
+              try
+              {
+                  dbConnection.Open();
+                  string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
+                  ExecuteSQL(sql);
+                  string vacuum = "VACUUM";
+                  ExecuteSQL(vacuum);
+              }
+              finally
+              {
+                  dbConnection.Close();
+              }
+              mDBSize = (int)mDBFileInfo.Length;
 		  }
 
         /// <summary>
