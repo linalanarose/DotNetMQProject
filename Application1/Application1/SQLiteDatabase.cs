@@ -66,8 +66,8 @@ namespace Database
             dbConnection.Open();
             string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
             ExecuteSQL(sql);
-				mDBFileInfo = new FileInfo(mFilePath);
-				mDBSize = (int)mDBFileInfo.Length;
+		    mDBFileInfo = new FileInfo(mFilePath);
+			mDBSize = (int)mDBFileInfo.Length;
             dbConnection.Close();
 
             mDelay = delay;
@@ -90,7 +90,7 @@ namespace Database
 					 string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
-                mDBFileInfo = new FileInfo(mFilePath);
+                     mDBFileInfo = new FileInfo(mFilePath);
 					 mDBSize = (int)mDBFileInfo.Length;
 				}
 				else
@@ -106,7 +106,13 @@ namespace Database
 		  }
 		  public string getOldestMessage()
 		  {
-				return "the message";
+              dbConnection.Open();
+              string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
+              SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
+              SQLiteDataReader reader = command.ExecuteReader();
+              string message = reader["message"].ToString();
+              dbConnection.Close();
+              return message;
 		  }
         
         /// <summary>
