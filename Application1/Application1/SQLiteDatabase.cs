@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -42,7 +42,7 @@ namespace Database
 				mDBFileInfo = new FileInfo(mFilePath);
 				//create table if not existing
 				dbConnection.Open();
-				string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message VARCHAR(50))";
+				string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50))";
 				ExecuteSQL(sql);
 				mSize = (int)mDBFileInfo.Length;
 				dbConnection.Close();
@@ -65,7 +65,7 @@ namespace Database
             dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
             //create table if not existing
             dbConnection.Open();
-            string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message TEXT)";
+            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
             ExecuteSQL(sql);
 				mDBFileInfo = new FileInfo(mFilePath);
 				mSize = (int)mDBFileInfo.Length;
@@ -94,16 +94,19 @@ namespace Database
 					 string msg = sr.ReadToEnd();
 					 msg = msg.Replace("'", "''");
 					 Console.WriteLine(msg);
-					 string sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(":","").Replace(".", "") + ",'" + msg + "')";
+					 string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
-					 mSize += (int)msgFileInfo.Length;
+                     mDBFileInfo = new FileInfo(mFilePath);
+					 mSize = (int)msgFileInfo.Length;
 				}
 				else
 				{
 					 while (mSize + (int)msgFileInfo.Length > mMaxSize)
 					 {
-						  DeleteOldestMessage();
+						 DeleteOldestMessage();
+                         mDBFileInfo = new FileInfo(mFilePath);
+                         mSize = (int)mDBFileInfo.Length;
 					 }
 					 CreateMessage(msgPath);
 				}
@@ -119,7 +122,7 @@ namespace Database
             while (reader.Read())
             {
                 Console.WriteLine("Message: " + reader["message"]);
-                System.IO.File.WriteAllText(mDeliveryPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
+                System.IO.File.WriteAllText(mDeliveryPath + reader["msgID"].ToString() + ".xml", reader["message"].ToString());
                 System.Threading.Thread.Sleep(mDelay);
             }
             dbConnection.Close();
@@ -132,8 +135,10 @@ namespace Database
 		  private void DeleteOldestMessage()
 		  {
 				dbConnection.Open();
-				string sql = "DELETE FROM messages WHERE ROWID IN (SELECT ROWID FROM messages ORDER BY ROWID ASC LIMIT 1)";
+                string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
 				ExecuteSQL(sql);
+                string vaccum = "VACUUM";
+                ExecuteSQL(vaccum);
 				dbConnection.Close();
 				mSize = (int)mDBFileInfo.Length;
 		  }

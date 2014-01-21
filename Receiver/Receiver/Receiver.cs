@@ -1,4 +1,4 @@
-﻿using Database;
+﻿﻿using Database;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,7 +12,7 @@ namespace Receiver
     {
 		  string mDeliveryPath;
 		  int mDelay;
-		  SQLiteDatabase database;
+		  SQLiteDatabase database = new SQLiteDatabase("C:/SQLiteDataBase/", 1000);;
         static void Main(string[] args)
         {
            Console.Write("Start receving messages\n");
