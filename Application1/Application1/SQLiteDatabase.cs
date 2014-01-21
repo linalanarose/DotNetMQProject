@@ -121,7 +121,8 @@ namespace Database
 					 AddMessage(msg, size);
 				}
 		  }
-		  public string getOldestMessage()
+
+		  public string GetOldestMessage()
 		  {
               string message = string.Empty;
               try

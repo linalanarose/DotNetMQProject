@@ -13,7 +13,6 @@ namespace Receiver
     class Receiver
     {
 		  static SQLiteDatabase database;
-		  static string mDeliveryPath;
 		  static int mDelay;
 	 	  static string delPath = string.Empty;
 
@@ -21,7 +20,8 @@ namespace Receiver
         {
 				Configure();
 				Console.Write("Start receving messages\n");
-				ReceiveAllMsgs();
+				//ReceiveAllMsgs();
+                ReceiveBySize(10000);
 				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
 				Console.ReadKey();
         }
@@ -31,6 +31,7 @@ namespace Receiver
 				foreach (string msg in msgs)
 				{
 					 Console.WriteLine(msg);
+                     Console.WriteLine();
 				}
 		  }
 		  /// <summary>
@@ -46,7 +47,7 @@ namespace Receiver
 					 while (reader.Read())
 					 {
 						  Console.WriteLine("Message: " + reader["message"]);
-						  System.IO.File.WriteAllText(mDeliveryPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
+                          System.IO.File.WriteAllText(delPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
 						  System.Threading.Thread.Sleep(mDelay);
 					 }
 				}
