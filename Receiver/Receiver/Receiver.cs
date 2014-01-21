@@ -16,6 +16,7 @@ namespace Receiver
 		  static int mDelay;
 		  static int delSize;
 	 	  static string delPath = string.Empty;
+		  static int fileNameCount;
 
         static void Main(string[] args)	  
         {
@@ -49,7 +50,7 @@ namespace Receiver
 					 while (reader.Read())
 					 {
 						  Console.WriteLine("Message: " + reader["message"]);
-                          System.IO.File.WriteAllText(delPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
+                    System.IO.File.WriteAllText(delPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
 						  System.Threading.Thread.Sleep(mDelay);
 					 }
 				}
@@ -57,6 +58,11 @@ namespace Receiver
 				{
 					 database.dbConnection.Close(); 
 				}				
+		  }
+		  private void SaveFile(string msg)
+		  {
+				System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
+				fileNameCount++;
 		  }
 		  private static void Configure()
 		  {				
