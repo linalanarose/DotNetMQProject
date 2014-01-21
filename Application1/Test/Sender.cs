@@ -1,9 +1,12 @@
-﻿using System;
+﻿﻿using Database;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Data.SQLite;
-using Database;
 
 namespace Sender
 {
@@ -12,26 +15,47 @@ namespace Sender
     /// </summary>
     class Sender
     {
+		  static int mDBSize;
+		  static SQLiteDatabase database;
         static void Main(string[] args)
         {
-            Console.Write("Please enter message to send or type 'exit' to quit\n");
+				Configure();
+            Console.Write("Please enter the path to an XML file to send or type 'exit' to quit\n");
             //creates a new sqlitedatabase
-            SQLiteDatabase database = new SQLiteDatabase(10);
+
             //while the user is in the system entering messages
             while (true)
             {
                 //make sure the message isn't null or exit
-                var messageText = Console.ReadLine();
-                if (string.IsNullOrEmpty(messageText) || messageText == "exit")
+                var msgPath = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(msgPath) || msgPath == "exit")
                 {
                     break;
                 }
-                //create message from console input and add to table
-                database.CreateMessage(messageText);
-                //TEMPORARY open the database and list all current messages
-                database.ListMessage();
-                
+					 //check that the path works before calling SendMessage
+
+                //create message from msg path and add to table
+					 SendMessage(msgPath);             
+
             }
         }
+		  private static void SendMessage(string msgPath)
+		  {
+				StreamReader sr = new StreamReader(msgPath);
+				string msg = sr.ReadToEnd();
+				msg = msg.Replace("'", "''");				
+
+				FileInfo msgFileInfo = new FileInfo(msgPath);
+				int size = (int)msgFileInfo.Length;
+
+				database.AddMessage(msg, size);
+		  }
+		  private static void Configure()
+		  {
+				var SenderDatabaseCommunication = ConfigurationManager.GetSection("SenderDatabaseCommunication") as NameValueCollection;
+				mDBSize = Int32.Parse(SenderDatabaseCommunication["maxsize"]);
+				database = new SQLiteDatabase(mDBSize);
+		  }
     }
 }
