@@ -13,8 +13,8 @@ namespace Receiver
         {
            Console.Write("Start receving messages\n");
             //opens SQLiteDatabase file and retrieves messages
-           SQLiteDatabase database = new SQLiteDatabase("C:/SQLiteDataBase/receivedMsg.txt", 1000);
-           String[] result = database.ReceiveAllMsgs();
+           SQLiteDatabase database = new SQLiteDatabase("C:/SQLiteDataBase/", 1000);
+           database.ReceiveAllMsgs();
            //database.ReceiveAllMsgs();
            Console.WriteLine("Messages saved to receivedMsg.txt! Hit any key to exit");
            Console.ReadKey();
