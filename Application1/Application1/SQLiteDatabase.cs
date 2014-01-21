@@ -83,7 +83,7 @@ namespace Database
         /// <remarks>
         /// We will have to make the param type generic in the future
         /// </remarks>
-		  public void CreateMessage(String msgPath)
+		  public void CreateMessage(string msgPath)
 		  {
 				FileInfo msgFileInfo = new FileInfo(msgPath);
 				//if the queue isn't "full"
@@ -91,10 +91,10 @@ namespace Database
 				{
 					 dbConnection.Open();
 					 StreamReader sr = new StreamReader(msgPath);
-					 String msg = sr.ReadToEnd();
+					 string msg = sr.ReadToEnd();
 					 msg = msg.Replace("'", "''");
 					 Console.WriteLine(msg);
-					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(":","").Replace(".", "") + ",'" + msg + "')";
+					 string sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(":","").Replace(".", "") + ",'" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
 					 mSize += (int)msgFileInfo.Length;
@@ -136,14 +136,6 @@ namespace Database
 				ExecuteSQL(sql);
 				dbConnection.Close();
 				mSize = (int)mDBFileInfo.Length;
-		  }
-
-		  private string ConvertXMLtoString(string path)
-		  {
-				XmlDocument xmlFile = new XmlDocument();
-				xmlFile.Load(path);
-				string xmlString = xmlFile.OuterXml;
-				return xmlString;
 		  }
 
         /// <summary>
