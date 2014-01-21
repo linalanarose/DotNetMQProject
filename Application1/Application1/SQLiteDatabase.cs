@@ -43,7 +43,7 @@ namespace Database
                 try
                 {
                     dbConnection.Open();
-                    string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50))";
+                    string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
                     ExecuteSQL(sql);
                     mDBSize = (int)mDBFileInfo.Length;
                 }
@@ -72,7 +72,7 @@ namespace Database
             try
             {
                 dbConnection.Open();
-                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
                 ExecuteSQL(sql);
                 mDBFileInfo = new FileInfo(mFilePath);
                 mDBSize = (int)mDBFileInfo.Length;
@@ -100,7 +100,7 @@ namespace Database
                     try
                     {
                         dbConnection.Open();
-                        string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
+                        string sql = "INSERT INTO messages (message, msgSize) VALUES ('" + msg + "', '" + size + "')";
                         ExecuteSQL(sql);
                     }
                     finally
