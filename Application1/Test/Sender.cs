@@ -1,4 +1,4 @@
-﻿using Database;
+﻿﻿using Database;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -16,12 +16,12 @@ namespace Sender
         {
             Console.Write("Please enter the path to an XML file to send or type 'exit' to quit\n");
             //creates a new sqlitedatabase
-            SQLiteDatabase database = new SQLiteDatabase(10000);
+            SQLiteDatabase database = new SQLiteDatabase(100000);
             //while the user is in the system entering messages
             while (true)
             {
                 //make sure the message isn't null or exit
-					 var msgPath = Console.ReadLine();
+                var msgPath = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(msgPath) || msgPath == "exit")
                 {
@@ -29,7 +29,7 @@ namespace Sender
                 }
 
                 //create message from console input and add to table
-					 database.CreateMessage(msgPath);                
+                database.CreateMessage(msgPath);
             }
         }
     }

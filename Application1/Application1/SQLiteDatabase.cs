@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -42,7 +42,7 @@ namespace Database
 				mDBFileInfo = new FileInfo(mFilePath);
 				//create table if not existing
 				dbConnection.Open();
-				string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message VARCHAR(50))";
+				string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50))";
 				ExecuteSQL(sql);
 				mSize = (int)mDBFileInfo.Length;
 				dbConnection.Close();
@@ -65,7 +65,7 @@ namespace Database
             dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
             //create table if not existing
             dbConnection.Open();
-            string sql = "CREATE TABLE IF NOT EXISTS messages (time VARCHAR(50), message TEXT)";
+            string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INT PRIMARY KEY, message TEXT)";
             ExecuteSQL(sql);
 				mDBFileInfo = new FileInfo(mFilePath);
 				mSize = (int)mDBFileInfo.Length;
@@ -83,73 +83,7 @@ namespace Database
         /// <remarks>
         /// We will have to make the param type generic in the future
         /// </remarks>
-<<<<<<< HEAD
-        public void CreateMessage(String message)
-        {
-            //if the queue isn't "full"
-            if (mCount < mMaxCount)
-            {
-                dbConnection.Open();
-                String sql = "INSERT INTO messages (msgID, message) VALUES (" + mCount + ", '" + message + "')";
-                ExecuteSQL(sql);
-                mCount++;
-                dbConnection.Close();
-            }
-            else
-            {
-                //call delete oldest message and try to create again
-                DeleteOldestMessage();
-                CreateMessage(message);
-            }
-        }
-
-		  //public void CreateMessage(String msgPath)
-		  //{
-		  //	 FileInfo msgFileInfo = new FileInfo(msgPath);
-		  //	 //if the queue isn't "full"
-		  //	 if (mSize + (int)msgFileInfo.Length < mMaxSize)
-		  //	 {
-		  //		  dbConnection.Open();
-		  //		  using (StreamReader reader = new StreamReader(msgPath, false))
-		  //		  {
-		  //				string msg = "";
-		  //				while ((msg = reader.ReadLine()) != null)
-		  //				{
-		  //					 msg = msg.Trim();
-		  //					 if (string.IsNullOrEmpty(msg) == false)
-		  //					 {
-		  //						  String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString() + ",'" + msg + "')";
-		  //					 }
-		  //				}
-		  //		  }
-		  //		  mSize += (int)msgFileInfo.Length;
-		  //	 }
-		  //	 else
-		  //	 {
-		  //		  while (mSize + (int)msgFileInfo.Length > mMaxSize)
-		  //		  {
-		  //				DeleteOldestMessage();
-		  //		  }
-		  //		  CreateMessage();
-		  //	 }
-		  //}
-
-        /// <summary>
-        /// Selects all messages in queue and lists them in console.
-        /// </summary>
-        public void ListMessage()
-        {
-            dbConnection.Open();
-            SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", dbConnection);
-            SQLiteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-                Console.WriteLine("msgID: " + reader["msgID"] + "\tMessage: " + reader["message"]);
-            dbConnection.Close();
-        }
-
-   /*
-=======
-		  public void CreateMessage(String msgPath)
+		  public void CreateMessage(string msgPath)
 		  {
 				FileInfo msgFileInfo = new FileInfo(msgPath);
 				//if the queue isn't "full"
@@ -157,19 +91,22 @@ namespace Database
 				{
 					 dbConnection.Open();
 					 StreamReader sr = new StreamReader(msgPath);
-					 String msg = sr.ReadToEnd();
+					 string msg = sr.ReadToEnd();
 					 msg = msg.Replace("'", "''");
 					 Console.WriteLine(msg);
-					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(':', '-').Replace('.', '-') + ",'" + msg + "')";
+					 string sql = "INSERT INTO messages (message) VALUES ('" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
-					 mSize += (int)msgFileInfo.Length;
+                     mDBFileInfo = new FileInfo(mFilePath);
+					 mSize = (int)msgFileInfo.Length;
 				}
 				else
 				{
 					 while (mSize + (int)msgFileInfo.Length > mMaxSize)
 					 {
-						  DeleteOldestMessage();
+						 DeleteOldestMessage();
+                         mDBFileInfo = new FileInfo(mFilePath);
+                         mSize = (int)mDBFileInfo.Length;
 					 }
 					 CreateMessage(msgPath);
 				}
@@ -177,7 +114,6 @@ namespace Database
 		  /// <summary>
 		  /// Delivers each message to a file denoted by the time it was received
 		  /// </summary>
->>>>>>> 9bd524d0965d57f025b9db67ac6dc74a3d2e21c3
         public void ReceiveAllMsgs()
         {
             dbConnection.Open();
@@ -186,12 +122,11 @@ namespace Database
             while (reader.Read())
             {
                 Console.WriteLine("Message: " + reader["message"]);
-                System.IO.File.WriteAllText(mDeliveryPath + reader["time"].ToString() + ".xml", reader["message"].ToString());
+                System.IO.File.WriteAllText(mDeliveryPath + reader["msgID"].ToString() + ".xml", reader["message"].ToString());
                 System.Threading.Thread.Sleep(mDelay);
             }
-            String sql = "DELETE FROM messages";
-            ExecuteSQL(sql);
             dbConnection.Close();
+				System.IO.File.Delete(mFilePath);
         }
         
         /// <summary>
@@ -200,18 +135,12 @@ namespace Database
 		  private void DeleteOldestMessage()
 		  {
 				dbConnection.Open();
-				string sql = "DELETE FROM messages WHERE ROWID IN (SELECT ROWID FROM messages ORDER BY ROWID ASC LIMIT 1)";
+                string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
 				ExecuteSQL(sql);
+                string vaccum = "VACUUM";
+                ExecuteSQL(vaccum);
 				dbConnection.Close();
 				mSize = (int)mDBFileInfo.Length;
-		  }
-
-		  private string ConvertXMLtoString(string path)
-		  {
-				XmlDocument xmlFile = new XmlDocument();
-				xmlFile.Load(path);
-				string xmlString = xmlFile.OuterXml;
-				return xmlString;
 		  }
 
         /// <summary>
