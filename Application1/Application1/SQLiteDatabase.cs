@@ -16,7 +16,6 @@ namespace Database
     /// </remarks>
     public class SQLiteDatabase
     {
-
         private static int mDelay;
 		  private static int mMaxSize;
 		  private int mDBSize;

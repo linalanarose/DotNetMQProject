@@ -1,6 +1,7 @@
 ﻿﻿using Database;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
@@ -12,7 +13,11 @@ namespace Receiver
     {
 		  string mDeliveryPath;
 		  int mDelay;
-		  SQLiteDatabase database = new SQLiteDatabase("C:/SQLiteDataBase/", 1000);;
+
+		  string delPath = string.Empty;
+		  var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
+		  delPath = ReceiverDatabaseCommunication["deliveryPath"].toString();
+		  SQLiteDatabase database = new SQLiteDatabase(delPath, 1000);
         static void Main(string[] args)
         {
            Console.Write("Start receving messages\n");
