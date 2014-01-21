@@ -14,6 +14,7 @@ namespace Receiver
     {
 		  static SQLiteDatabase database;
 		  static int mDelay;
+		  static int delSize;
 	 	  static string delPath = string.Empty;
 
         static void Main(string[] args)	  
@@ -21,7 +22,7 @@ namespace Receiver
 				Configure();
 				Console.Write("Start receving messages\n");
 				//ReceiveAllMsgs();
-                ReceiveBySize(10000);
+            //ReceiveBySize(delSize);
 				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
 				Console.ReadKey();
         }
@@ -30,8 +31,9 @@ namespace Receiver
 				ArrayList msgs = database.GetMsgBySize(maxSize);
 				foreach (string msg in msgs)
 				{
+					 //add REAL saving function
 					 Console.WriteLine(msg);
-                     Console.WriteLine();
+                Console.WriteLine();
 				}
 		  }
 		  /// <summary>
@@ -61,7 +63,8 @@ namespace Receiver
 				var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
 				delPath = ReceiverDatabaseCommunication["deliveryPath"].ToString();
 				mDelay = Int32.Parse(ReceiverDatabaseCommunication["delay"]);
-                database = new SQLiteDatabase(delPath);
+				delSize = Int32.Parse(ReceiverDatabaseCommunication["delSize"]);
+            database = new SQLiteDatabase(delPath);
 		  }
     }
 }

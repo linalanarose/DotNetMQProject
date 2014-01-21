@@ -107,17 +107,21 @@ namespace Database
                     {
                         dbConnection.Close();
                     }
-                     mDBFileInfo = new FileInfo(mFilePath);
+                mDBFileInfo = new FileInfo(mFilePath);
 					 mDBSize = (int)mDBFileInfo.Length;
+					 Console.WriteLine("Message added to queue.");
 				}
 				else
 				{
+					 int numDeleted = 0;
 					 while (mDBSize + size > mMaxSize)
 					 {
-						 DeleteOldestMessage();
-                         mDBFileInfo = new FileInfo(mFilePath);
-                         mDBSize = (int)mDBFileInfo.Length;
+						  DeleteOldestMessage();
+                    mDBFileInfo = new FileInfo(mFilePath);
+                    mDBSize = (int)mDBFileInfo.Length;
+						  numDeleted++;
 					 }
+					 Console.WriteLine("Deleted " + numDeleted + " messages to make space for your message.");
 					 AddMessage(msg, size);
 				}
 		  }
