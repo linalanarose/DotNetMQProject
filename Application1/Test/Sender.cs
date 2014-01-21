@@ -1,6 +1,7 @@
 ﻿﻿using Database;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Data.SQLite;
 using System.IO;
@@ -14,9 +15,11 @@ namespace Sender
     /// </summary>
     class Sender
     {
-		  static SQLiteDatabase database = new SQLiteDatabase(10000);
+		  static int mDBSize;
+		  static SQLiteDatabase database;
         static void Main(string[] args)
         {
+				Configure();
             Console.Write("Please enter the path to an XML file to send or type 'exit' to quit\n");
             //creates a new sqlitedatabase
 
@@ -47,6 +50,12 @@ namespace Sender
 				int size = (int)msgFileInfo.Length;
 
 				database.AddMessage(msg, size);
+		  }
+		  private static void Configure()
+		  {
+				var SenderDatabaseCommunication = ConfigurationManager.GetSection("SenderDatabaseCommunication") as NameValueCollection;
+				mDBSize = Int32.Parse(SenderDatabaseCommunication["maxsize"]);
+				database = new SQLiteDatabase(mDBSize);
 		  }
     }
 }
