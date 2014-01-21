@@ -158,9 +158,9 @@ namespace Database
 					 dbConnection.Open();
 					 StreamReader sr = new StreamReader(msgPath);
 					 String msg = sr.ReadToEnd();
-					 msg = msg.Replace("'", "*");
+					 msg = msg.Replace("'", "''");
 					 Console.WriteLine(msg);
-					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(':', ',').Replace('.', ',') + ",'" + msg + "')";
+					 String sql = "INSERT INTO messages (time, message) VALUES (" + DateTime.Now.TimeOfDay.ToString().Replace(':', '-').Replace('.', '-') + ",'" + msg + "')";
 					 ExecuteSQL(sql);
 					 dbConnection.Close();
 					 mSize += (int)msgFileInfo.Length;
