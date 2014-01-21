@@ -34,7 +34,7 @@ namespace Receiver
 				{
 					 //add REAL saving function
 					 SaveFile(msg);
-					 int fileNameCount = fileNameCount -1;
+					 int fileName = fileNameCount -1;
 					 Console.WriteLine("Saved file " + fileName + ".xml");
 				}
 		  }
