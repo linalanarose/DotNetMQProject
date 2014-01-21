@@ -17,11 +17,10 @@ namespace Sender
     {
 		  static int mDBSize;
 		  static SQLiteDatabase database;
-        static void Main(string[] args)
-        {
-				Configure();
+          static void Main(string[] args)
+          {
+            Configure();
             Console.Write("Please enter the path to an XML file to send or type 'exit' to quit\n");
-            //creates a new sqlitedatabase
 
             //while the user is in the system entering messages
             while (true)
@@ -33,13 +32,16 @@ namespace Sender
                 {
                     break;
                 }
-					 //check that the path works before calling SendMessage
-
                 //create message from msg path and add to table
-					 SendMessage(msgPath);             
+			    SendMessage(msgPath);             
 
             }
         }
+
+        /// <summary>
+        /// Send messages from the specified path
+        /// </summary>
+        /// <param name="msgPath">Path of XML file to send</param>
 		  private static void SendMessage(string msgPath)
 		  {
 				StreamReader sr = new StreamReader(msgPath);
@@ -51,6 +53,10 @@ namespace Sender
 
 				database.AddMessage(msg, size);
 		  }
+
+        /// <summary>
+        /// Configure the sender and create instance of database.
+        /// </summary>
 		  private static void Configure()
 		  {
 				var SenderDatabaseCommunication = ConfigurationManager.GetSection("SenderDatabaseCommunication") as NameValueCollection;

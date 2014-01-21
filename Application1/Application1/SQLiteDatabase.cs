@@ -17,8 +17,8 @@ namespace Database
     public class SQLiteDatabase
     {
         private static int mDelay;
-		  private static int mMaxSize;
-		  private int mDBSize;
+		private static int mMaxSize;
+		private int mDBSize;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
@@ -117,8 +117,8 @@ namespace Database
 					 while (mDBSize + size > mMaxSize)
 					 {
 						  DeleteOldestMessage();
-                    mDBFileInfo = new FileInfo(mFilePath);
-                    mDBSize = (int)mDBFileInfo.Length;
+                          mDBFileInfo = new FileInfo(mFilePath);
+                          mDBSize = (int)mDBFileInfo.Length;
 						  numDeleted++;
 					 }
 					 Console.WriteLine("Deleted " + numDeleted + " messages to make space for your message.");
