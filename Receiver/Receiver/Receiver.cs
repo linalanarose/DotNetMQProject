@@ -1,5 +1,6 @@
 ﻿﻿using Database;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -26,7 +27,7 @@ namespace Receiver
         }
 		  private static void ReceiveBySize(int maxSize)
 		  {
-				string[] msgs = database.GetMsgBySize(maxSize);
+				ArrayList msgs = database.GetMsgBySize(maxSize);
 				foreach (string msg in msgs)
 				{
 					 Console.WriteLine(msg);
