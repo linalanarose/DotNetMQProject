@@ -107,7 +107,7 @@ namespace Database
                     {
                         dbConnection.Close();
                     }
-                mDBFileInfo = new FileInfo(mFilePath);
+                     mDBFileInfo = new FileInfo(mFilePath);
 					 mDBSize = (int)mDBFileInfo.Length;
 					 Console.WriteLine("Message added to queue.");
 				}

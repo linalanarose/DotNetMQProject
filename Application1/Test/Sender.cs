@@ -27,7 +27,6 @@ namespace Sender
             {
                 //make sure the message isn't null or exit
                 var msgPath = Console.ReadLine();
-
                 if (string.IsNullOrEmpty(msgPath) || msgPath == "exit")
                 {
                     break;
@@ -46,11 +45,10 @@ namespace Sender
 		  {
 				StreamReader sr = new StreamReader(msgPath);
 				string msg = sr.ReadToEnd();
-				msg = msg.Replace("'", "''");				
-
+                //Sqlite does not recongize apostrophe
+				msg = msg.Replace("'", "''");
 				FileInfo msgFileInfo = new FileInfo(msgPath);
 				int size = (int)msgFileInfo.Length;
-
 				database.AddMessage(msg, size);
 		  }
 
