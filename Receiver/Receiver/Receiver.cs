@@ -24,6 +24,14 @@ namespace Receiver
 				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
 				Console.ReadKey();
         }
+		  private static void ReceiveBySize(int maxSize)
+		  {
+				string[] msgs = database.GetMsgBySize(maxSize);
+				foreach (string msg in msgs)
+				{
+					 Console.WriteLine(msg);
+				}
+		  }
 		  /// <summary>
 		  /// Receives each message to a file denoted by the time it was received
 		  /// </summary>
