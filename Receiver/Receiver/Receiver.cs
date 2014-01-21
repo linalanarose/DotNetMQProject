@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Text;
@@ -14,10 +13,8 @@ namespace Receiver
 		  string mDeliveryPath;
 		  int mDelay;
 
-		  string delPath = string.Empty;
-		  var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
-		  delPath = ReceiverDatabaseCommunication["deliveryPath"].toString();
-		  SQLiteDatabase database = new SQLiteDatabase(delPath, 1000);
+
+		  dtySQLiteDatabase database = new SQLiteDatabase(delPath, 1000);
         static void Main(string[] args)
         {
            Console.Write("Start receving messages\n");
@@ -25,10 +22,22 @@ namespace Receiver
            Console.WriteLine("Messages saved to your directory! Hit any key to exit");
            Console.ReadKey();
         }
+        
+        private string getDelPath()
+        {
+            var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
+            return ReceiverDatabaseCommunication["deliveryPath"].toString();
+        }
+
+        private string getDelay()
+        {
+            var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
+            return ReceiverDatabaseCommunication["delay"].toString();
+        }
 		  /// <summary>
 		  /// Receives each message to a file denoted by the time it was received
 		  /// </summary>
-		  private void ReceiveAllMsgs()
+		  private static void ReceiveAllMsgs()
 		  {
 				database.dbConnection.Open();
 				SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", database.dbConnection);
