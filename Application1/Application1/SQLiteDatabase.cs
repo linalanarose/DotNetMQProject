@@ -1,5 +1,5 @@
 ﻿﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -138,7 +138,37 @@ namespace Database
               }
               return message;
 		  }
-        
+
+          /// <summary>
+          /// Receive messages by certain size
+          /// </summary>
+          /// <param name="size">Size of messages in bytes</param>
+          public ArrayList GetMsgBySize(int size)
+          {
+              ArrayList messages = new ArrayList();
+              try{
+                  dbConnection.Open();
+                  int receivedSize = 0;
+                  int counter = 0;
+                  while (receivedSize < size)
+                  {
+                      SQLiteCommand minMsgIDCmd = new SQLiteCommand("SELECT MIN(msgID) FROM messages", dbConnection);
+                      int minMsgID = Convert.ToInt32(minMsgIDCmd.ExecuteScalar());
+                      int rowPointer = minMsgID + counter;
+                      SQLiteCommand getMsgCmd = new SQLiteCommand("SELECT message FROM messages WHERE msgID ='" + rowPointer + "'", dbConnection);
+                      SQLiteDataReader getMsgReader = getMsgCmd.ExecuteReader();
+                      messages.Add(getMsgReader["message"].ToString());
+                      SQLiteCommand getSizeCmd = new SQLiteCommand("SELECT msgSize FROM messages WHERE msgID ='" + rowPointer + "'", dbConnection);
+                      receivedSize += Convert.ToInt32(getSizeCmd.ExecuteScalar());
+                      counter++;
+                  }
+              }
+              finally
+              {
+                  dbConnection.Close();
+              }
+              return messages;
+          }
         /// <summary>
         /// Deletes the oldest message in the queue
         /// </summary>
