@@ -51,7 +51,7 @@ namespace Receiver
 				var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
 				delPath = ReceiverDatabaseCommunication["deliveryPath"].ToString();
 				mDelay = Int32.Parse(ReceiverDatabaseCommunication["delay"]);
-				database = new SQLiteDatabase(delPath, 1000);
+                database = new SQLiteDatabase(delPath);
 		  }
     }
 }

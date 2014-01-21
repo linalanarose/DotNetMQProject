@@ -60,7 +60,7 @@ namespace Database
         /// <param name="filePath"> The path to the desired output directory.</param>
         /// <param name="aDelay">The desired delay between message deliveries</param>
 
-        public SQLiteDatabase(String deliveryPath, int delay)
+        public SQLiteDatabase(String deliveryPath)
         {
             if (File.Exists(mFilePath) == false)
             {
@@ -81,10 +81,10 @@ namespace Database
             {
                 dbConnection.Close();
             }
-            mDelay = delay;
             mDeliveryPath = deliveryPath;
         }
         #endregion
+
         #region Methods
         /// <summary>
         /// Makes a message and inserts it at the next point in the table
@@ -107,7 +107,7 @@ namespace Database
                     {
                         dbConnection.Close();
                     }
-                        mDBFileInfo = new FileInfo(mFilePath);
+                     mDBFileInfo = new FileInfo(mFilePath);
 					 mDBSize = (int)mDBFileInfo.Length;
 				}
 				else
@@ -149,8 +149,7 @@ namespace Database
                   dbConnection.Open();
                   string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
                   ExecuteSQL(sql);
-                  string vacuum = "VACUUM";
-                  ExecuteSQL(vacuum);
+                  ExecuteSQL("VACUUM");
               }
               finally
               {
