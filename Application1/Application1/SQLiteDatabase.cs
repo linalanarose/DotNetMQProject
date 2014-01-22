@@ -5,6 +5,8 @@ using System.Data.SQLite;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
+using System.Collections.Specialized;
+using System.Configuration;
 
 namespace Database
 {
@@ -21,8 +23,8 @@ namespace Database
 		  private static int mLastMsgID;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
-        private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
-        private static String mDirectoryPath = "C:/SQLiteDataBase/";
+        private static String mFilePath;
+        private static String mDirectoryPath;
         public SQLiteConnection dbConnection;
 
         #region Constructors
@@ -33,6 +35,7 @@ namespace Database
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
 		  public SQLiteDatabase(int maxSize)
 		  {
+            Configure();
 				if (File.Exists(mFilePath) == false)
 				{
 					 SQLiteConnection.CreateFile(mFilePath);
@@ -67,6 +70,7 @@ namespace Database
 
         public SQLiteDatabase(String deliveryPath)
         {
+            Configure();
             if (File.Exists(mFilePath) == false)
             {
                 SQLiteConnection.CreateFile(mFilePath);
@@ -269,6 +273,13 @@ namespace Database
         {
             SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
             command.ExecuteNonQuery();
+        }
+
+        private static void Configure()
+        {
+            var SQLiteDataBaseConfigu = ConfigurationManager.GetSection("SQLiteDataBaseConfigure") as NameValueCollection;
+            mFilePath = SQLiteDataBaseConfigu["FilePath"].ToString();
+            mDirectoryPath = SQLiteDataBaseConfigu["DirectoryPath"].ToString();
         }
         #endregion
     }
