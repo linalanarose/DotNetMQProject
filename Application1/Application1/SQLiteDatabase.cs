@@ -5,8 +5,6 @@ using System.Data.SQLite;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
-using System.Configuration;
-using System.Collections.Specialized;
 
 namespace Database
 {
@@ -23,8 +21,8 @@ namespace Database
 		  private static int mLastMsgID;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
-        private static String mFilePath;
-        private static String mDirectoryPath;
+        private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
+        private static String mDirectoryPath = "C:/SQLiteDataBase/";
         public SQLiteConnection dbConnection;
 
         #region Constructors
@@ -35,7 +33,6 @@ namespace Database
         /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
 		  public SQLiteDatabase(int maxSize)
 		  {
-            Configure();
 				if (File.Exists(mFilePath) == false)
 				{
 					 SQLiteConnection.CreateFile(mFilePath);
@@ -70,7 +67,6 @@ namespace Database
 
         public SQLiteDatabase(String deliveryPath)
         {
-            Configure();
             if (File.Exists(mFilePath) == false)
             {
                 SQLiteConnection.CreateFile(mFilePath);
@@ -111,7 +107,7 @@ namespace Database
 								string sql;
 								if (CheckEmptyTable())
 								{
-									 sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" + (mLastMsgID+1) + "','" + msg + "', '" + size + "')";
+									 sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" +mLastMsgID+ "','" + msg + "', '" + size + "')";
 								}
 								else
 								{
@@ -176,9 +172,10 @@ namespace Database
               try{
                   int receivedSize = 0;
                   int counter = 0;
-						int numRows = GetNumOfRows();
+						int numRows = getNumOfRows();
 						dbConnection.Open();
                   while (receivedSize < size && counter < numRows)
+
                   {
                       SQLiteCommand minMsgIDCmd = new SQLiteCommand("SELECT MIN(msgID) FROM messages", dbConnection);
                       int minMsgID = Convert.ToInt32(minMsgIDCmd.ExecuteScalar());
@@ -199,48 +196,6 @@ namespace Database
               return messages;
           }
 
-        /// <summary>
-        /// Check if the table is empty
-        /// </summary>
-        /// <returns>True if empty</returns>
-          public bool CheckEmptyTable()
-          {
-              bool empty = false;
-              try
-              {
-                  dbConnection.Open();
-                  SQLiteCommand getRowsCmd = new SQLiteCommand("SELECT COUNT(msgID) FROM messages", dbConnection);
-                  if (Convert.ToInt32(getRowsCmd.ExecuteScalar()) == 0)
-                  {
-                      empty = true;
-                  }
-                  else
-                  {
-                      empty = false;
-                  }
-              }
-              finally
-              {
-                  dbConnection.Close();
-              }
-              return empty;
-          }
-
-          private int GetNumOfRows()
-          {
-              int numOfRows = 0;
-              try
-              {
-                  dbConnection.Open();
-                  SQLiteCommand numOfRowsCmd = new SQLiteCommand("SELECT COUNT(msgID) FROM messages", dbConnection);
-                  numOfRows = Convert.ToInt32(numOfRowsCmd.ExecuteScalar());
-              }
-              finally
-              {
-                  dbConnection.Close();
-              }
-              return numOfRows;
-          }
         /// <summary>
         /// Deletes the oldest message in the queue
         /// </summary>
@@ -264,7 +219,48 @@ namespace Database
               }
               mDBSize = (int)mDBFileInfo.Length;
 		  }
+		  /// <summary>
+		  /// Check if the table is empty
+		  /// </summary>
+		  /// <returns>True if empty</returns>
+		  public bool CheckEmptyTable()
+		  {
+				bool empty = false;
+				try
+				{
+					 dbConnection.Open();
+					 SQLiteCommand getRowsCmd = new SQLiteCommand("SELECT COUNT(msgID) FROM messages", dbConnection);
+					 if (Convert.ToInt32(getRowsCmd.ExecuteScalar()) == 0)
+					 {
+						  empty = true;
+					 }
+					 else
+					 {
+						  empty = false;
+					 }
+				}
+				finally
+				{
+					 dbConnection.Close();
+				}
+				return empty;
+		  }
 
+		  private int getNumOfRows()
+		  {
+				int numOfRows = 0;
+				try
+				{
+					 dbConnection.Open();
+					 SQLiteCommand numOfRowsCmd = new SQLiteCommand("SELECT COUNT(msgID) FROM messages", dbConnection);
+					 numOfRows = Convert.ToInt32(numOfRowsCmd.ExecuteScalar());
+				}
+				finally
+				{
+					 dbConnection.Close();
+				}
+				return numOfRows;
+		  }
         /// <summary>
         /// Simplifies the process of executing SQLite code
         /// </summary>
@@ -273,13 +269,6 @@ namespace Database
         {
             SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
             command.ExecuteNonQuery();
-        }
-
-        private void Configure()
-        {
-            var SQLiteDataBaseConfigure = ConfigurationManager.GetSection("SQLiteDataBaseConfigure") as NameValueCollection;
-            mFilePath = SQLiteDataBaseConfigure["FilePath"].ToString();
-            mDirectoryPath = SQLiteDataBaseConfigure["DirectoryPath"].ToString();
         }
         #endregion
     }
