@@ -31,21 +31,33 @@ namespace Receiver
 
         /// <summary>
         /// Receive certain size of messages from beginning of database
+		  /// Does NOT delete
         /// </summary>
         /// <param name="maxSize">Size of messages to receive</param>
-		  private static void ReceiveBySize(int maxSize)
+		  /// <param name="delete">Delete messages on receipt or not</param>
+		  private static void ReceiveBySize(int maxSize, Boolean delete)
 		  {
 				ArrayList msgs = database.GetMsgBySize(maxSize);
+				int numMsgs = msgs.Count;
 				foreach (string msg in msgs)
 				{
-					 //add REAL saving function
-					 SaveFile(msg);					 
-
+					 SaveFile(msg);
+					 Thread.Sleep(mDelay);
+				}
+				//logic here fails if the database changes during the saving of messages.
+				//needs redone eventually
+				if (delete)
+				{
+					 for (int i=0; i<numMsgs; i++)
+					 {
+						  database.DeleteOldestMessage();
+					 }
 				}
 		  }
 		  /// <summary>
-		  /// Receives each message to a file denoted by the time it was received and clean the database
+		  /// Receives each message to a file denoted by the time it was received (delete as you go)
 		  /// </summary>
+		  /// <param name="delete">True if delete on Receipt of messages. Not currently implemented</param>
 		  private static void ReceiveAllMsgs()
 		  {
 				while (database.CheckEmptyTable()==false)
