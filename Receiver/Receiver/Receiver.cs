@@ -22,9 +22,9 @@ namespace Receiver
         static void Main(string[] args)	  
         {
 				Configure();
-				Console.Write("Start receving messages\n");
-				ReceiveAllMsgs();
-            //ReceiveBySize(delSize, true);
+				Console.Write("Started receving messages\n");
+				//ReceiveAllMsgs();
+            ReceiveBySize(delSize, true);
 				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
 				Console.ReadKey();
         }
@@ -74,31 +74,34 @@ namespace Receiver
         /// <param name="msg">Message to save</param>
 		  private static void SaveFile(string msg)
 		  {
-				try
-				{
-					 database.dbConnection.Open();
-					 SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", database.dbConnection);
-					 int minMsgID = Convert.ToInt32(cmd.ExecuteScalar());
-					 System.IO.File.WriteAllText(delPath + minMsgID.ToString() + ".xml", msg);
-					 Console.WriteLine("Saved file " + minMsgID + ".xml");
-				}
-				finally
-				{
-					 database.dbConnection.Close();
-				}
-				
+				System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
+				Console.WriteLine("Saved file " + fileNameCount + ".xml");
+				fileNameCount++;				
 		  }
 
         /// <summary>
         /// Configurate parameters of receiver and create instance of database
         /// </summary>
 		  private static void Configure()
-		  {				
+		  {	
+				//get info from config file
 				var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
 				delPath = ReceiverDatabaseCommunication["deliveryPath"].ToString();
 				mDelay = Int32.Parse(ReceiverDatabaseCommunication["delay"]);
 				delSize = Int32.Parse(ReceiverDatabaseCommunication["delSize"]);
-                database = new SQLiteDatabase(delPath);
+            database = new SQLiteDatabase(delPath);
+				//set current fileNameCount
+				try
+				{
+					 database.dbConnection.Open();
+					 SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", database.dbConnection);
+					 int minMsgID = Convert.ToInt32(cmd.ExecuteScalar());
+					 fileNameCount = minMsgID;
+				}
+				finally
+				{
+					 database.dbConnection.Close();
+				}
 		  }
     }
 }
