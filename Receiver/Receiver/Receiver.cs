@@ -39,7 +39,11 @@ namespace Receiver
 				{
 					 //add REAL saving function
 					 SaveFile(msg);
-					 int fileName = fileNameCount -1;
+					 
+                     database.dbConnection.Open();
+                     SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM message WHERE msgID = (SELECT MIN(msgID) FROM messages)");
+                     int minMsgID = Convert.ToInt32(cmd.ExecuteReader());
+                     int fileName = fileNameCount - 1 + minMsgID;
 					 Console.WriteLine("Saved file " + fileName + ".xml");
 				}
 		  }

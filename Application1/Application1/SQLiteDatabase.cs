@@ -171,8 +171,36 @@ namespace Database
               finally
               {
                   dbConnection.Close();
+
               }
               return messages;
+          }
+
+        /// <summary>
+        /// Check if the table is empty
+        /// </summary>
+        /// <returns>True if empty</returns>
+          private bool CheckEmptyTable()
+          {
+              bool empty = false;
+              try
+              {
+                  dbConnection.Open();
+                  SQLiteCommand getRowsCmd = new SQLiteCommand("SELECT COUNT(msgID) FROM messages", dbConnection);
+                  if (Convert.ToInt32(getRowsCmd.ExecuteScalar()) == 0)
+                  {
+                      empty = true;
+                  }
+                  else
+                  {
+                      empty = false;
+                  }
+              }
+              finally
+              {
+                  dbConnection.Close();
+              }
+              return empty;
           }
         /// <summary>
         /// Deletes the oldest message in the queue
