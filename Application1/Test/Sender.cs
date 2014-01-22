@@ -33,7 +33,15 @@ namespace Sender
                     break;
                 }
                 //create message from msg path and add to table
-					 SendMessage(msgPath);
+                try
+                {
+                    SendMessage(msgPath);
+                }
+                catch (FileNotFoundException e)
+                {
+                    Console.WriteLine("Invalid Input! Please Try Again.");
+                }
+					 
             }
               //Following lines are for performance testing
               /*
