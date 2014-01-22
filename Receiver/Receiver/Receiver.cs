@@ -41,7 +41,7 @@ namespace Receiver
 
 		  /// <param name="delete">Delete messages on receipt or not</param>
 		  private static void ReceiveBySize(int maxSize, bool delete)
-		  {
+		  { 
 				ArrayList msgs = database.GetMsgBySize(maxSize);
 				int numMsgs = msgs.Count;
 				foreach (string msg in msgs)

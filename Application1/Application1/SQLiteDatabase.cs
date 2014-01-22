@@ -270,6 +270,7 @@ namespace Database
             }
         }
 
+
 		  private int GetNumOfRows()
 		  {
 				int numOfRows = 0;
