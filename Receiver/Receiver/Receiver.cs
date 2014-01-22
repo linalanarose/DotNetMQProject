@@ -24,7 +24,7 @@ namespace Receiver
 				Configure();
 				Console.Write("Start receving messages\n");
 				ReceiveAllMsgs();
-            //ReceiveBySize(delSize);
+            //ReceiveBySize(delSize, true);
 				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
 				Console.ReadKey();
         }
@@ -74,11 +74,19 @@ namespace Receiver
         /// <param name="msg">Message to save</param>
 		  private static void SaveFile(string msg)
 		  {
-				database.dbConnection.Open();
-				SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM message WHERE msgID = (SELECT MIN(msgID) FROM messages)");
-				int minMsgID = Convert.ToInt32(cmd.ExecuteReader());
-				System.IO.File.WriteAllText(delPath + minMsgID.ToString() + ".xml", msg);
-				Console.WriteLine("Saved file " + minMsgID + ".xml");
+				try
+				{
+					 database.dbConnection.Open();
+					 SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", database.dbConnection);
+					 int minMsgID = Convert.ToInt32(cmd.ExecuteScalar());
+					 System.IO.File.WriteAllText(delPath + minMsgID.ToString() + ".xml", msg);
+					 Console.WriteLine("Saved file " + minMsgID + ".xml");
+				}
+				finally
+				{
+					 database.dbConnection.Close();
+				}
+				
 		  }
 
         /// <summary>
