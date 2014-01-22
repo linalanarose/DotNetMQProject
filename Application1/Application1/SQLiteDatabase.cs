@@ -216,6 +216,22 @@ namespace Database
               }
               return empty;
           }
+
+          private int getNumOfRows()
+          {
+              int numOfRows = 0;
+              try
+              {
+                  dbConnection.Open();
+                  SQLiteCommand numOfRowsCmd = new SQLiteCommand("SELECT COUNT(msgID) FROM messages", dbConnection);
+                  numOfRows = Convert.ToInt32(numOfRowsCmd.ExecuteScalar());
+              }
+              finally
+              {
+                  dbConnection.Close();
+              }
+              return numOfRows;
+          }
         /// <summary>
         /// Deletes the oldest message in the queue
         /// </summary>
