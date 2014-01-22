@@ -23,8 +23,8 @@ namespace Receiver
         {
             Configure();
             Console.Write("Started receving messages\n");
-            ReceiveAllMsgs();
-            //ReceiveBySize(delSize, true);
+            //ReceiveAllMsgs();
+            ReceiveBySize(delSize, true);
             Console.WriteLine("Messages saved to your directory! Hit any key to exit");
             Console.ReadKey();
         }

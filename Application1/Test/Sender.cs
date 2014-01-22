@@ -32,7 +32,7 @@ namespace Sender
                     break;
                 }
                 //create message from msg path and add to table
-			    SendMessage(msgPath);
+					 SendMessage(msgPath);
             }
               //Following lines are for performance testing
               /*
