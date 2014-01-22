@@ -26,9 +26,9 @@ namespace Receiver
             while (true)
             {
                 ReceiveAllMsgs();
+					 //ReceiveBySize(delSize, true);
                 Thread.Sleep(10000);
-            }
-            //ReceiveBySize(delSize, true);
+            }         
             Console.ReadKey();
         }
 
