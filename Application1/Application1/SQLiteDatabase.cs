@@ -43,23 +43,26 @@ namespace Database
 				//make a database or open the existing one
 				dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
 				mDBFileInfo = new FileInfo(mFilePath);
-            if (CheckEmptyTable() == true)
-            {
-                mLastMsgID = Convert.ToInt32(System.IO.File.ReadAllText(mDirectoryPath + @"\lastID.txt"));
-            }
+
 				//create table if not existing
-                try
-                {
-                    dbConnection.Open();
-                    string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
-                    ExecuteSQL(sql);
-                    mDBSize = (int)mDBFileInfo.Length;
-                }
-                finally
-                {
-                    dbConnection.Close();
-                }
-                mMaxSize = maxSize;
+            try
+            {
+                dbConnection.Open();
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
+                ExecuteSQL(sql);
+                string lastIDTable = "CREATE TABLE IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
+                ExecuteSQL(lastIDTable);
+                string insert = "INSERT OR IGNORE INTO lastID (ID) VALUES (1)";
+                ExecuteSQL(insert);
+                SQLiteCommand getLastIDCmd = new SQLiteCommand("SELECT lastID FROM lastID WHERE ID = 1", dbConnection);
+                mLastMsgID = Convert.ToInt32(getLastIDCmd.ExecuteScalar());
+                mDBSize = (int)mDBFileInfo.Length;
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+            mMaxSize = maxSize;
 		  }
 
         /// <summary>
@@ -83,6 +86,8 @@ namespace Database
                 dbConnection.Open();
                 string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
                 ExecuteSQL(sql);
+                string lastIDTable = "CREATE TABLE  IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
+                ExecuteSQL(lastIDTable);
                 mDBFileInfo = new FileInfo(mFilePath);
                 mDBSize = (int)mDBFileInfo.Length;
             }
@@ -111,7 +116,7 @@ namespace Database
 								string sql;
 								if (CheckEmptyTable())
 								{
-									 sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" +mLastMsgID+ "','" + msg + "', '" + size + "')";
+									 sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" + (mLastMsgID + 1) + "','" + msg + "', '" + size + "')";
 								}
 								else
 								{
@@ -134,8 +139,8 @@ namespace Database
 					 while (mDBSize + size > mMaxSize)
 					 {
 						  DeleteOldestMessage();
-                          mDBFileInfo = new FileInfo(mFilePath);
-                          mDBSize = (int)mDBFileInfo.Length;
+                    mDBFileInfo = new FileInfo(mFilePath);
+                    mDBSize = (int)mDBFileInfo.Length;
 						  numDeleted++;
 					 }
 					 Console.WriteLine("Deleted " + numDeleted + " messages to make space for your message.");
@@ -176,7 +181,7 @@ namespace Database
               try{
                   int receivedSize = 0;
                   int counter = 0;
-						int numRows = getNumOfRows();
+						int numRows = GetNumOfRows();
 						dbConnection.Open();
                   while (receivedSize < size && counter < numRows)
 
@@ -212,7 +217,8 @@ namespace Database
 						SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", dbConnection);
 						int currMsgID = Convert.ToInt32(cmd.ExecuteScalar());
 						mLastMsgID = currMsgID;
-                  System.IO.File.WriteAllText(mDirectoryPath + @"\lastID.txt", mLastMsgID.ToString());
+                  string lastIDUpdate = "UPDATE lastID SET lastID = '" + mLastMsgID + "' WHERE ID = 1";
+                  ExecuteSQL(lastIDUpdate);
                   string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
                   ExecuteSQL(sql);
                   ExecuteSQL("VACUUM");
@@ -250,7 +256,21 @@ namespace Database
 				return empty;
 		  }
 
-		  private int getNumOfRows()
+        public void Reset()
+        {
+            try
+            {
+                dbConnection.Open();
+                ExecuteSQL("UPDATE lastID SET lastID = 0 WHERE ID = 1");
+                ExecuteSQL("DELETE FROM messages");
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+        }
+
+		  private int GetNumOfRows()
 		  {
 				int numOfRows = 0;
 				try

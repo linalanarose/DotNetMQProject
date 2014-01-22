@@ -23,11 +23,12 @@ namespace Receiver
         {
             Configure();
             Console.Write("Started receving messages\n");
-            while (true)
-            {
-                ReceiveAllMsgs();
-                Thread.Sleep(10000);
-            }
+            //while (true)
+            //{
+                //ReceiveAllMsgs();
+                //Thread.Sleep(10000);
+            //}
+            ReceiveAllMsgs();
             //ReceiveBySize(delSize, true);
             Console.ReadKey();
         }
@@ -71,8 +72,6 @@ namespace Receiver
                 Thread.Sleep(mDelay);
             }
             Console.WriteLine("Messages saved to your directory!");
-            string txt = "0";
-            System.IO.File.WriteAllText(@"C:\SQLiteDataBase\lastID.txt", txt);
         }
 
         /// <summary>
