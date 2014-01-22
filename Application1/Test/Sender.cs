@@ -37,7 +37,7 @@ namespace Sender
                 {
                     SendMessage(msgPath);
                 }
-                catch (FileNotFoundException e)
+                catch (Exception e)
                 {
                     Console.WriteLine("Invalid Input! Please Try Again.");
                 }
