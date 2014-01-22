@@ -1,4 +1,4 @@
-﻿﻿using Database;
+﻿﻿﻿using Database;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,27 +13,28 @@ namespace Receiver
 {
     class Receiver
     {
-		  static SQLiteDatabase database;
-		  static int mDelay;
-		  static int delSize;
-	 	  static string delPath = string.Empty;
-		  static int fileNameCount;
+        static SQLiteDatabase database;
+        static int mDelay;
+        static int delSize;
+        static string delPath = string.Empty;
+        static int fileNameCount;
 
-        static void Main(string[] args)	  
+        static void Main(string[] args)
         {
-				Configure();
-				Console.Write("Started receving messages\n");
-				//ReceiveAllMsgs();
-            ReceiveBySize(delSize, true);
-				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
-				Console.ReadKey();
+            Configure();
+            Console.Write("Started receving messages\n");
+            ReceiveAllMsgs();
+            //ReceiveBySize(delSize, true);
+            Console.WriteLine("Messages saved to your directory! Hit any key to exit");
+            Console.ReadKey();
         }
 
         /// <summary>
         /// Receive certain size of messages from beginning of database
-		  /// Does NOT delete
+        /// Does NOT delete
         /// </summary>
         /// <param name="maxSize">Size of messages to receive</param>
+
 		  /// <param name="delete">Delete messages on receipt or not</param>
 		  private static void ReceiveBySize(int maxSize, bool delete)
 		  {
@@ -54,54 +55,54 @@ namespace Receiver
 					 }
 				}
 		  }
-		  /// <summary>
-		  /// Receives each message to a file denoted by the time it was received (delete as you go)
-		  /// </summary>
-		  /// <param name="delete">True if delete on Receipt of messages. Not currently implemented</param>
-		  private static void ReceiveAllMsgs()
-		  {
-				while (database.CheckEmptyTable()==false)
-				{
-					 SaveFile(database.GetOldestMessage());
-					 database.DeleteOldestMessage();
-					 Thread.Sleep(mDelay);
-				}
-		  }
+        /// <summary>
+        /// Receives each message to a file denoted by the time it was received (delete as you go)
+        /// </summary>
+        /// <param name="delete">True if delete on Receipt of messages. Not currently implemented</param>
+        private static void ReceiveAllMsgs()
+        {
+            while (database.CheckEmptyTable() == false)
+            {
+                SaveFile(database.GetOldestMessage());
+                database.DeleteOldestMessage();
+                Thread.Sleep(mDelay);
+            }
+        }
 
         /// <summary>
         /// Save messages to the path which defined by delPath in configration
         /// </summary>
         /// <param name="msg">Message to save</param>
-		  private static void SaveFile(string msg)
-		  {
-				System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
-				Console.WriteLine("Saved file " + fileNameCount + ".xml");
-				fileNameCount++;				
-		  }
+        private static void SaveFile(string msg)
+        {
+            System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
+            Console.WriteLine("Saved file " + fileNameCount + ".xml");
+            fileNameCount++;
+        }
 
         /// <summary>
         /// Configurate parameters of receiver and create instance of database
         /// </summary>
-		  private static void Configure()
-		  {	
-				//get info from config file
-				var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
-				delPath = ReceiverDatabaseCommunication["deliveryPath"].ToString();
-				mDelay = Int32.Parse(ReceiverDatabaseCommunication["delay"]);
-				delSize = Int32.Parse(ReceiverDatabaseCommunication["delSize"]);
+        private static void Configure()
+        {
+            //get info from config file
+            var ReceiverDatabaseCommunication = ConfigurationManager.GetSection("ReceiverDatabaseCommunication") as NameValueCollection;
+            delPath = ReceiverDatabaseCommunication["deliveryPath"].ToString();
+            mDelay = Int32.Parse(ReceiverDatabaseCommunication["delay"]);
+            delSize = Int32.Parse(ReceiverDatabaseCommunication["delSize"]);
             database = new SQLiteDatabase(delPath);
-				//set current fileNameCount
-				try
-				{
-					 database.dbConnection.Open();
-					 SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", database.dbConnection);
-					 int minMsgID = Convert.ToInt32(cmd.ExecuteScalar());
-					 fileNameCount = minMsgID;
-				}
-				finally
-				{
-					 database.dbConnection.Close();
-				}
-		  }
+            //set current fileNameCount
+            try
+            {
+                database.dbConnection.Open();
+                SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", database.dbConnection);
+                int minMsgID = Convert.ToInt32(cmd.ExecuteScalar());
+                fileNameCount = minMsgID;
+            }
+            finally
+            {
+                database.dbConnection.Close();
+            }
+        }
     }
 }

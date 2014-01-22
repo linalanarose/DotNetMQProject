@@ -32,9 +32,36 @@ namespace Sender
                     break;
                 }
                 //create message from msg path and add to table
-			    SendMessage(msgPath);             
-
+			    SendMessage(msgPath);
             }
+
+         //Following lines are for performance testing
+            /*
+          static void Main(string[] args)
+          {
+            Configure();
+            Console.Write("Please enter the path to an XML file to send or type 'exit' to quit\n");
+            var minutes = 1;
+            var start = DateTime.UtcNow;
+            var endTime = start.AddMinutes(minutes);
+            //while the user is in the system entering messages
+            while (true)
+            {
+                TimeSpan remainingTime = endTime - DateTime.UtcNow;
+                //make sure the message isn't null or exit
+                var msgPath = Console.ReadLine();
+                if (string.IsNullOrEmpty(msgPath) || msgPath == "exit")
+                {
+                    break;
+                }
+                //create message from msg path and add to table]
+                if (remainingTime > TimeSpan.Zero)
+                    SendMessage("C:/SQLiteDataBase/1.xml");
+                else
+                    break;
+            }
+        }
+        */
         }
 
         /// <summary>
