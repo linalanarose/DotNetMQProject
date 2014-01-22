@@ -173,15 +173,10 @@ namespace Database
               try{
                   int receivedSize = 0;
                   int counter = 0;
-<<<<<<< HEAD
-                  bool empty = CheckEmptyTable();
-						dbConnection.Open();
-                  while (receivedSize < size && empty == false)
-=======
 						int numRows = getNumOfRows();
 						dbConnection.Open();
                   while (receivedSize < size && counter < numRows)
->>>>>>> 04b66db9696eec118a8c7f873b5e7b356943f4fb
+
                   {
                       SQLiteCommand minMsgIDCmd = new SQLiteCommand("SELECT MIN(msgID) FROM messages", dbConnection);
                       int minMsgID = Convert.ToInt32(minMsgIDCmd.ExecuteScalar());
