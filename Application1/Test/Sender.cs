@@ -11,7 +11,7 @@ using System.Text;
 namespace Sender
 {
     /// <summary>
-    /// This class promotes a console for user to send messages
+    /// This class provides a console for users to send messages
     /// </summary>
     class Sender
     {
@@ -26,6 +26,7 @@ namespace Sender
             while (true)
             {
                 //make sure the message isn't null or exit
+					 //need to add ways to check for other wrong input!!!!!!!!!!!!!!!!!!!!!
                 var msgPath = Console.ReadLine();
                 if (string.IsNullOrEmpty(msgPath) || msgPath == "exit")
                 {
@@ -71,7 +72,7 @@ namespace Sender
 		  {
 				StreamReader sr = new StreamReader(msgPath);
 				string msg = sr.ReadToEnd();
-                //Sqlite does not recongize apostrophe
+            //Sqlite does not recongize apostrophes
 				msg = msg.Replace("'", "''");
 				FileInfo msgFileInfo = new FileInfo(msgPath);
 				int size = (int)msgFileInfo.Length;

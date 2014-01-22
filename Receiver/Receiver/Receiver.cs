@@ -11,6 +11,9 @@ using System.Threading;
 
 namespace Receiver
 {
+	 /// <summary>
+	 /// The class that receives messages and allows for choice on how to do so
+	 /// </summary>
     class Receiver
     {
         static SQLiteDatabase database;
@@ -34,10 +37,8 @@ namespace Receiver
 
         /// <summary>
         /// Receive certain size of messages from beginning of database
-        /// Does NOT delete
         /// </summary>
         /// <param name="maxSize">Size of messages to receive</param>
-
 		  /// <param name="delete">Delete messages on receipt or not</param>
 		  private static void ReceiveBySize(int maxSize, bool delete)
 		  { 
@@ -48,7 +49,7 @@ namespace Receiver
 					 SaveFile(msg);
 					 Thread.Sleep(mDelay);
 				}
-				//logic here fails if the database changes during the saving of messages.
+				//logic here fails if the database deletes other messages during the saving of messages.
 				//needs redone eventually
 				if (delete)
 				{
@@ -85,7 +86,7 @@ namespace Receiver
         }
 
         /// <summary>
-        /// Configurate parameters of receiver and create instance of database
+        /// Configure parameters of receiver and create instance of database
         /// </summary>
         private static void Configure()
         {
