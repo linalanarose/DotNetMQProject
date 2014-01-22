@@ -17,8 +17,9 @@ namespace Database
     public class SQLiteDatabase
     {
         private static int mDelay;
-		private static int mMaxSize;
-		private int mDBSize;
+		  private static int mMaxSize;
+		  private int mDBSize;
+		  private int mLastMsgID;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
@@ -99,8 +100,16 @@ namespace Database
 				{
                     try
                     {
-                        dbConnection.Open();
-                        string sql = "INSERT INTO messages (message, msgSize) VALUES ('" + msg + "', '" + size + "')";
+								string sql;
+								if (CheckEmptyTable())
+								{
+									 sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" +mLastMsgID+ "','" + msg + "', '" + size + "')";
+								}
+								else
+								{
+									 sql = "INSERT INTO messages (message, msgSize) VALUES ('" + msg + "', '" + size + "')";
+								}
+								dbConnection.Open();
                         ExecuteSQL(sql);
                     }
                     finally
@@ -128,20 +137,25 @@ namespace Database
 
 		  public string GetOldestMessage()
 		  {
-              string message = string.Empty;
-              try
-              {
-                  dbConnection.Open();
-                  string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
-                  SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
-                  SQLiteDataReader reader = command.ExecuteReader();
-                  message = reader["message"].ToString();
-              }
-              finally
-              {
-                  dbConnection.Close();
-              }
-              return message;
+				if (CheckEmptyTable())
+				{
+					 Console.WriteLine("No Messages!");
+				}
+            string message = string.Empty;
+            try
+            {
+                dbConnection.Open();                 
+					 //get message to deliver
+					 string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
+                SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
+                SQLiteDataReader reader = command.ExecuteReader();
+                message = reader["message"].ToString();
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+            return message;
 		  }
 
           /// <summary>
@@ -152,9 +166,9 @@ namespace Database
           {
               ArrayList messages = new ArrayList();
               try{
-                  dbConnection.Open();
                   int receivedSize = 0;
                   int counter = 0;
+						dbConnection.Open();
                   while (receivedSize < size)
                   {
                       SQLiteCommand minMsgIDCmd = new SQLiteCommand("SELECT MIN(msgID) FROM messages", dbConnection);
@@ -210,6 +224,11 @@ namespace Database
               try
               {
                   dbConnection.Open();
+						//check on msg ID
+						SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", dbConnection);
+						int currMsgID = Convert.ToInt32(cmd.ExecuteScalar());
+						mLastMsgID = currMsgID;
+
                   string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
                   ExecuteSQL(sql);
                   ExecuteSQL("VACUUM");
