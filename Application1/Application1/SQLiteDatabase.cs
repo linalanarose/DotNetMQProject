@@ -23,6 +23,7 @@ namespace Database
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
         private static String mFilePath = "C:/SQLiteDataBase/MessageDatabase.sqlite";
+        private static String mDirectoryPath = "C:/SQLiteDataBase/";
         public SQLiteConnection dbConnection;
 
         #region Constructors
@@ -40,6 +41,10 @@ namespace Database
 				//make a database or open the existing one
 				dbConnection = new SQLiteConnection("Data Source = " + mFilePath + ";Version=3;");
 				mDBFileInfo = new FileInfo(mFilePath);
+            if (CheckEmptyTable() == true)
+            {
+                mLastMsgID = Convert.ToInt32(System.IO.File.ReadAllText(mDirectoryPath + @"\lastID.txt"));
+            }
 				//create table if not existing
                 try
                 {
@@ -168,8 +173,9 @@ namespace Database
               try{
                   int receivedSize = 0;
                   int counter = 0;
+                  bool empty = CheckEmptyTable();
 						dbConnection.Open();
-                  while (receivedSize < size)
+                  while (receivedSize < size && empty == false)
                   {
                       SQLiteCommand minMsgIDCmd = new SQLiteCommand("SELECT MIN(msgID) FROM messages", dbConnection);
                       int minMsgID = Convert.ToInt32(minMsgIDCmd.ExecuteScalar());
@@ -217,7 +223,7 @@ namespace Database
               return empty;
           }
 
-          private int getNumOfRows()
+          private int GetNumOfRows()
           {
               int numOfRows = 0;
               try
@@ -244,7 +250,7 @@ namespace Database
 						SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)", dbConnection);
 						int currMsgID = Convert.ToInt32(cmd.ExecuteScalar());
 						mLastMsgID = currMsgID;
-
+                  System.IO.File.WriteAllText(mDirectoryPath + @"\lastID.txt", mLastMsgID.ToString());
                   string sql = "DELETE FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages);";
                   ExecuteSQL(sql);
                   ExecuteSQL("VACUUM");

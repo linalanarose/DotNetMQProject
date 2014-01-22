@@ -23,8 +23,8 @@ namespace Receiver
         {
             Configure();
             Console.Write("Started receving messages\n");
-            ReceiveAllMsgs();
-            //ReceiveBySize(delSize, true);
+            //ReceiveAllMsgs();
+            ReceiveBySize(delSize, true);
             Console.WriteLine("Messages saved to your directory! Hit any key to exit");
             Console.ReadKey();
         }
@@ -67,6 +67,8 @@ namespace Receiver
                 database.DeleteOldestMessage();
                 Thread.Sleep(mDelay);
             }
+            string txt = "0";
+            System.IO.File.WriteAllText(@"C:\SQLiteDataBase\lastID.txt", txt);
         }
 
         /// <summary>
