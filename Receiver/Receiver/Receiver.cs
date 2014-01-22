@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Data.SQLite;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Receiver
 {
@@ -23,7 +24,7 @@ namespace Receiver
 				Configure();
 				Console.Write("Start receving messages\n");
 				ReceiveAllMsgs();
-                //ReceiveBySize(delSize);
+            //ReceiveBySize(delSize);
 				Console.WriteLine("Messages saved to your directory! Hit any key to exit");
 				Console.ReadKey();
         }
@@ -47,16 +48,12 @@ namespace Receiver
 		  /// </summary>
 		  private static void ReceiveAllMsgs()
 		  {
-				ArrayList messages = new ArrayList();
 				while (database.CheckEmptyTable()==false)
 				{
-					 messages.Add(database.GetOldestMessage());
+					 SaveFile(database.GetOldestMessage());
 					 database.DeleteOldestMessage();
+					 Thread.Sleep(mDelay);
 				}
-				foreach (string msg in messages)
-				{
-					 SaveFile(msg);
-				}		
 		  }
 
         /// <summary>
@@ -65,10 +62,9 @@ namespace Receiver
         /// <param name="msg">Message to save</param>
 		  private static void SaveFile(string msg)
 		  {
-				//assumes the message has been deleted
 				database.dbConnection.Open();
 				SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM message WHERE msgID = (SELECT MIN(msgID) FROM messages)");
-				int minMsgID = Convert.ToInt32(cmd.ExecuteReader())-1;
+				int minMsgID = Convert.ToInt32(cmd.ExecuteReader());
 				System.IO.File.WriteAllText(delPath + minMsgID.ToString() + ".xml", msg);
 				Console.WriteLine("Saved file " + minMsgID + ".xml");
 		  }
