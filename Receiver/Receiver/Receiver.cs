@@ -38,13 +38,8 @@ namespace Receiver
 				foreach (string msg in msgs)
 				{
 					 //add REAL saving function
-					 SaveFile(msg);
-					 
-                     database.dbConnection.Open();
-                     SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM message WHERE msgID = (SELECT MIN(msgID) FROM messages)");
-                     int minMsgID = Convert.ToInt32(cmd.ExecuteReader());
-                     int fileName = fileNameCount - 1 + minMsgID;
-					 Console.WriteLine("Saved file " + fileName + ".xml");
+					 SaveFile(msg);					 
+
 				}
 		  }
 		  /// <summary>
@@ -52,33 +47,16 @@ namespace Receiver
 		  /// </summary>
 		  private static void ReceiveAllMsgs()
 		  {
-				try
+				ArrayList messages = new ArrayList();
+				while (database.CheckEmptyTable()==false)
 				{
-					 database.dbConnection.Open();
-                     //Read everything from database
-					 SQLiteCommand command = new SQLiteCommand("SELECT * FROM messages", database.dbConnection);
-					 SQLiteDataReader reader = command.ExecuteReader();
-                     //Handle messages, write message content into console, and write content into file on disk
-					 while (reader.Read())
-					 {
-						  Console.WriteLine("Message: " + reader["message"]);
-                          string writePath = delPath + reader["msgID"].ToString() + ".xml";
-                          System.IO.File.WriteAllText(writePath, reader["message"].ToString());
-                          //Delay between each message
-						  System.Threading.Thread.Sleep(mDelay);
-					 }
-
-                     //Clear the database
-                     SQLiteCommand deleteCmd = new SQLiteCommand("DELETE FROM messages", database.dbConnection);
-                     deleteCmd.ExecuteNonQuery();
-                     //Vacuum the sqlite database to free up space
-                     SQLiteCommand vacuCmd = new SQLiteCommand("VACUUM", database.dbConnection);
-                     vacuCmd.ExecuteNonQuery();
+					 messages.Add(database.GetOldestMessage());
+					 database.DeleteOldestMessage();
 				}
-				finally 
+				foreach (string msg in messages)
 				{
-					 database.dbConnection.Close(); 
-				}				
+					 SaveFile(msg);
+				}		
 		  }
 
         /// <summary>
@@ -87,8 +65,12 @@ namespace Receiver
         /// <param name="msg">Message to save</param>
 		  private static void SaveFile(string msg)
 		  {
-				System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
-				fileNameCount++;
+				//assumes the message has been deleted
+				database.dbConnection.Open();
+				SQLiteCommand cmd = new SQLiteCommand("SELECT msgID FROM message WHERE msgID = (SELECT MIN(msgID) FROM messages)");
+				int minMsgID = Convert.ToInt32(cmd.ExecuteReader())-1;
+				System.IO.File.WriteAllText(delPath + minMsgID.ToString() + ".xml", msg);
+				Console.WriteLine("Saved file " + minMsgID + ".xml");
 		  }
 
         /// <summary>

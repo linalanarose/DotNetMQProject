@@ -180,7 +180,7 @@ namespace Database
         /// Check if the table is empty
         /// </summary>
         /// <returns>True if empty</returns>
-          private bool CheckEmptyTable()
+          public bool CheckEmptyTable()
           {
               bool empty = false;
               try
@@ -205,7 +205,7 @@ namespace Database
         /// <summary>
         /// Deletes the oldest message in the queue
         /// </summary>
-		  private void DeleteOldestMessage()
+		  public void DeleteOldestMessage()
 		  {
               try
               {
