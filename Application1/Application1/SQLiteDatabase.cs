@@ -54,7 +54,7 @@ namespace Database
                 string lastIDTable = "CREATE TABLE IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
                 ExecuteSQL(lastIDTable);
                 //If lastID table does not have a row with ID = 1, insert the row
-                string insert = "INSERT OR IGNORE INTO lastID (ID) VALUES (1)";
+                string insert = "INSERT OR IGNORE INTO lastID (ID, lastID) VALUES (1,0)";
                 ExecuteSQL(insert);
                 //Assign the record to LastMsgID
                 SQLiteCommand getLastIDCmd = new SQLiteCommand("SELECT lastID FROM lastID WHERE ID = 1", dbConnection);
