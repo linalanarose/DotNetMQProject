@@ -44,45 +44,69 @@ namespace Receiver
 		  { 
 				ArrayList msgs = database.GetMsgBySize(maxSize);
 				int numMsgs = msgs.Count;
-				foreach (string msg in msgs)
+				for (int i = 0; i < numMsgs; i++ )
 				{
-					 SaveFile(msg);
+					 if (SaveFile(msgs[i].ToString()))
+					 {
+						  if (delete)
+						  {
+								database.DeleteOldestMessage();
+						  }
+					 }
+					 else //retry this message if fails to save
+					 {
+						  i--;
+					 }
 					 Thread.Sleep(mDelay);
 				}
 				//logic here fails if the database deletes other messages during the saving of messages.
 				//needs redone eventually
-				if (delete)
-				{
-					 for (int i=0; i<numMsgs; i++)
-					 {
-						  database.DeleteOldestMessage();
-					 }
-				}
+
 		  }
         /// <summary>
-        /// Receives each message to a file denoted by the time it was received (delete as you go)
+        /// Receives each message to a file denoted by the msg ID (delete as you go if save successful)
         /// </summary>
-        /// <param name="delete">True if delete on Receipt of messages. Not currently implemented</param>
         private static void ReceiveAllMsgs()
         {
             while (database.CheckEmptyTable() == false)
             {
-                SaveFile(database.GetOldestMessage());
-                database.DeleteOldestMessage();
-                Thread.Sleep(mDelay);
+					 ReceiveAMessage();
+					 Thread.Sleep(mDelay);
             }
             Console.WriteLine("Messages saved to your directory!");
         }
+		  /// <summary>
+		  /// Gets and deletes 1 message from the Database
+		  /// </summary>
+		  private static void ReceiveAMessage()
+		  {
+				//if the file save is successful, delete the message
+				if (SaveFile(database.GetOldestMessage()))
+				{
+					 database.DeleteOldestMessage();
+				}
+		  }
 
         /// <summary>
         /// Save messages to the path which defined by delPath in configration
         /// </summary>
         /// <param name="msg">Message to save</param>
-        private static void SaveFile(string msg)
+		  /// <returns>True if successful</returns>
+        private static bool SaveFile(string msg)
         {
-            System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
-            Console.WriteLine("Saved file " + fileNameCount + ".xml");
-            fileNameCount++;
+				try
+				{
+					 System.IO.File.WriteAllText(delPath + fileNameCount.ToString() + ".xml", msg);
+					 Console.WriteLine("Saved file " + fileNameCount + ".xml");
+					 fileNameCount++;
+					 return true;
+				}
+				catch
+				{
+					 Console.WriteLine("File save for " + fileNameCount + ".xml failed. Trying again.");
+					 return false;
+				}
+
         }
 
         /// <summary>
