@@ -25,8 +25,6 @@ namespace Sender
             //while the user is in the system entering messages
             while (true)
             {
-                //make sure the message isn't null or exit
-					 //need to add ways to check for other wrong input!!!!!!!!!!!!!!!!!!!!!
                 var msgPath = Console.ReadLine();
                 if (string.IsNullOrEmpty(msgPath) || msgPath == "exit")
                 {
@@ -84,7 +82,12 @@ namespace Sender
 				msg = msg.Replace("'", "''");
 				FileInfo msgFileInfo = new FileInfo(msgPath);
 				int size = (int)msgFileInfo.Length;
-				database.AddMessage(msg, size);
+            bool sendSuccess = database.AddMessage(msg, size);
+            while (sendSuccess == false)
+            {
+                SendMessage(msgPath);
+            }
+            Console.WriteLine("Message added to queue.");
 		  }
 
         /// <summary>

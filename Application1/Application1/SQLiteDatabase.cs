@@ -112,8 +112,9 @@ namespace Database
         /// <remarks>
         /// We will have to make the param type generic in the future
         /// </remarks>
-		  public void AddMessage(string msg, int size)
+		  public bool AddMessage(string msg, int size)
 		  {
+            bool msgReceived = false;
             //If message can fit in the allowed file size, add the record
 				if (mDBSize + size < mMaxSize)
 				{
@@ -131,6 +132,7 @@ namespace Database
 					     }
 					     dbConnection.Open();
                     ExecuteSQL(sql);
+                    msgReceived = true;
                 }
                 finally
                 {
@@ -138,7 +140,6 @@ namespace Database
                 }
                 mDBFileInfo = new FileInfo(mFilePath);
 					 mDBSize = (int)mDBFileInfo.Length;
-					 Console.WriteLine("Message added to queue.");
 				}
 				else
 				{
@@ -153,8 +154,9 @@ namespace Database
 						  numDeleted++;
 					 }
 					 Console.WriteLine("Deleted " + numDeleted + " messages to make space for your message.");
-					 AddMessage(msg, size);
+					 msgReceived = AddMessage(msg, size);
 				}
+            return msgReceived;
 		  }
 
         /// <summary>
