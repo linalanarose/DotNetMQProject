@@ -379,6 +379,16 @@ namespace Database
 					 return System.Text.Encoding.Unicode.GetString(buffer, 0, buffer.Length);
             }
         }
+
+        private static byte[] Encrypt(byte[] msg)
+        {
+            return ProtectedData.Protect(msg, null, scope);
+        }
+
+        private static byte[] Decrypt(byte[] data)
+        {
+            return ProtectedData.Unprotect(data, null, scope);
+        }
         /// <summary>
         /// Read database file path from configuration file
         /// </summary>
@@ -387,16 +397,6 @@ namespace Database
             var SQLiteDataBaseConfigu = ConfigurationManager.GetSection("SQLiteDataBaseConfigure") as NameValueCollection;
             mFilePath = SQLiteDataBaseConfigu["FilePath"].ToString();
         }
-		  private static byte[] Encrypt(byte[] msg)
-		  {
-				//var data = Encoding.Unicode.GetBytes(msg);
-				return ProtectedData.Protect(msg, null, scope);
-		  }
-		  private static byte[] Decrypt(byte[] data)
-		  {
-				return ProtectedData.Unprotect(data, null, scope);
-				//return Encoding.Unicode.GetString(decrypted);
-		  }
         #endregion
     }
     public class DataBaseEmptyException : System.Exception

@@ -76,7 +76,6 @@ namespace Sender
 				StreamReader sr = new StreamReader(msgPath);
 				string msg = sr.ReadToEnd();
             //Sqlite does not recongize apostrophes
-				msg = msg.Replace("'", "''");
             bool sendSuccess = database.AddMessage(msg);
             while (sendSuccess == false)
             {
