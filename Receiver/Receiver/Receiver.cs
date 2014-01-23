@@ -25,12 +25,14 @@ namespace Receiver
         {
             Configure();
             Console.Write("Started receving messages\n");
+            /*
             while (true)
             {
                 ReceiveAllMsgs();
-					 //ReceiveBySize(delSize, true);
                 Thread.Sleep(10000);
-            }         
+            }
+             */
+            ReceiveBySize(delSize, true);
             Console.ReadKey();
         }
 

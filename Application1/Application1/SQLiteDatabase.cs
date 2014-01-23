@@ -187,9 +187,9 @@ namespace Database
             {
                 dbConnection.Open();                 
 					 //get message to deliver
-                string msgSize = "SELECT msgSize FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
-                SQLiteCommand msgSizeCmd = new SQLiteCommand(msgSize, dbConnection);
-                int msgSizeValue = Convert.ToInt32(msgSizeCmd.ExecuteScalar());
+                //string msgSize = "SELECT msgSize FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
+                //SQLiteCommand msgSizeCmd = new SQLiteCommand(msgSize, dbConnection);
+                //int msgSizeValue = Convert.ToInt32(msgSizeCmd.ExecuteScalar());
                 string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
                 SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -224,10 +224,11 @@ namespace Database
                       //Read message
                       SQLiteCommand getMsgCmd = new SQLiteCommand("SELECT message FROM messages WHERE msgID ='" + rowPointer + "'", dbConnection);
                       SQLiteDataReader getMsgReader = getMsgCmd.ExecuteReader();
-                      messages.Add(getMsgReader["message"].ToString());
+                      byte[] message = (byte[]) getMsgReader["message"];
+                      messages.Add(UnZip(Decrypt(message)));
                       //Calculate received message size
-                      SQLiteCommand getSizeCmd = new SQLiteCommand("SELECT msgSize FROM messages WHERE msgID ='" + rowPointer + "'", dbConnection);
-                      receivedSize += Convert.ToInt32(getSizeCmd.ExecuteScalar());
+                      //SQLiteCommand getSizeCmd = new SQLiteCommand("SELECT msgSize FROM messages WHERE msgID ='" + rowPointer + "'", dbConnection);
+                      receivedSize += message.Length;
                       counter++;
                   }
               }
