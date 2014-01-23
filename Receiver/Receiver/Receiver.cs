@@ -51,11 +51,13 @@ namespace Receiver
 						  if (delete)
 						  {
 								database.DeleteOldestMessage();
+								Console.WriteLine("Deleted successfuly saved message from queue.");
 						  }
 					 }
 					 else //retry this message if fails to save
 					 {
 						  i--;
+						  Console.WriteLine("Message save failed. Trying again.");
 					 }
 					 Thread.Sleep(mDelay);
 				}
