@@ -1,11 +1,9 @@
 ﻿﻿using Database;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Sender
@@ -79,9 +77,7 @@ namespace Sender
 				string msg = sr.ReadToEnd();
             //Sqlite does not recongize apostrophes
 				msg = msg.Replace("'", "''");
-				FileInfo msgFileInfo = new FileInfo(msgPath);
-				int size = (int)msgFileInfo.Length;
-            bool sendSuccess = database.AddMessage(msg, size);
+            bool sendSuccess = database.AddMessage(msg);
             while (sendSuccess == false)
             {
                 SendMessage(msgPath);

@@ -1,10 +1,9 @@
 ﻿﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Windows.Forms;
-using System.Xml;
 using System.Collections.Specialized;
 using System.Configuration;
 
@@ -48,7 +47,7 @@ namespace Database
             {
                 dbConnection.Open();
                 //Create messages table if it not exists
-                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message BLOB, msgSize INT)";
                 ExecuteSQL(sql);
                 //Create lastID table if it not exists
                 string lastIDTable = "CREATE TABLE IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
@@ -88,7 +87,7 @@ namespace Database
             {
                 dbConnection.Open();
                 //Create messages table if it not exists
-                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message VARCHAR(50), msgSize INT)";
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message BLOB, msgSize INT)";
                 ExecuteSQL(sql);
                 //Create lastID talbe if it not exists
                 string lastIDTable = "CREATE TABLE IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
@@ -112,8 +111,10 @@ namespace Database
         /// <remarks>
         /// We will have to make the param type generic in the future
         /// </remarks>
-		  public bool AddMessage(string msg, int size)
+		  public bool AddMessage(string msg)
 		  {
+            byte[] zippedMsg = Zip(msg);
+            int size = zippedMsg.Length;
             bool msgReceived = false;
             //If message can fit in the allowed file size, add the record
 				if (mDBSize + size < mMaxSize)
@@ -124,14 +125,23 @@ namespace Database
                     //if table is empty, insert the row with the id of last deleted record
 					     if (CheckEmptyTable())
 					     {
-						      sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" + (mLastMsgID + 1) + "','" + msg + "', '" + size + "')";
+                        dbConnection.Open();
+                        sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" + (mLastMsgID + 1) + "', @msg , '" + size + "')";
+                        var para = new SQLiteParameter("@msg", DbType.Binary) { Value = zippedMsg };
+                        var command = new SQLiteCommand(sql, dbConnection);
+                        command.Parameters.Add(para);
+                        command.ExecuteNonQuery();
 					     }
 					     else
 					     {
-						      sql = "INSERT INTO messages (message, msgSize) VALUES ('" + msg + "', '" + size + "')";
+                        dbConnection.Open();
+						      sql = "INSERT INTO messages (message, msgSize) VALUES (@msg , '" + size + "')";
+                        var para = new SQLiteParameter("@msg", DbType.Binary) { Value = zippedMsg };
+                        var command = new SQLiteCommand(sql, dbConnection);
+                        command.Parameters.Add(para);
+                        command.ExecuteNonQuery();
 					     }
-					     dbConnection.Open();
-                    ExecuteSQL(sql);
+                    //ExecuteSQL(sql);
                     msgReceived = true;
                 }
                 finally
@@ -154,7 +164,7 @@ namespace Database
 						  numDeleted++;
 					 }
 					 Console.WriteLine("Deleted " + numDeleted + " messages to make space for your message.");
-					 msgReceived = AddMessage(msg, size);
+					 msgReceived = AddMessage(msg);
 				}
             return msgReceived;
 		  }
@@ -169,21 +179,24 @@ namespace Database
 				{
                 throw new DataBaseEmptyException("No Messages to retrive");
 				}
-            string message = string.Empty;
+            byte[] message = new byte[0];
             try
             {
                 dbConnection.Open();                 
 					 //get message to deliver
-					 string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
+                string msgSize = "SELECT msgSize FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
+                SQLiteCommand msgSizeCmd = new SQLiteCommand(msgSize, dbConnection);
+                int msgSizeValue = Convert.ToInt32(msgSizeCmd.ExecuteScalar());
+                string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
                 SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
                 SQLiteDataReader reader = command.ExecuteReader();
-                message = reader["message"].ToString();
+                message = (byte[]) reader["message"];
             }
             finally
             {
                 dbConnection.Close();
             }
-            return message;
+            return UnZip(message);
 		  }
 
           /// <summary>
@@ -323,6 +336,45 @@ namespace Database
             command.ExecuteNonQuery();
         }
 
+        private static byte[] Zip(string text)
+        {
+            byte[] buffer = System.Text.Encoding.Unicode.GetBytes(text);
+            MemoryStream ms = new MemoryStream();
+            using (System.IO.Compression.GZipStream zip = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Compress, true))
+            {
+                zip.Write(buffer, 0, buffer.Length);
+            }
+
+            ms.Position = 0;
+            MemoryStream outStream = new MemoryStream();
+
+            byte[] compressed = new byte[ms.Length];
+            ms.Read(compressed, 0, compressed.Length);
+
+            byte[] gzBuffer = new byte[compressed.Length + 4];
+            System.Buffer.BlockCopy(compressed, 0, gzBuffer, 4, compressed.Length);
+            System.Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gzBuffer, 0, 4);
+            return gzBuffer;
+        }
+
+        public static string UnZip(byte[] compressedText)
+        {
+            byte[] gzBuffer = compressedText;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int msgLength = BitConverter.ToInt32(gzBuffer, 0);
+                ms.Write(gzBuffer, 4, gzBuffer.Length - 4);
+
+                byte[] buffer = new byte[msgLength];
+
+                ms.Position = 0;
+                using (System.IO.Compression.GZipStream zip = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Decompress))
+                {
+                    zip.Read(buffer, 0, buffer.Length);
+                }
+                return System.Text.Encoding.Unicode.GetString(buffer, 0, buffer.Length);
+            }
+        }
         /// <summary>
         /// Read database file path from configuration file
         /// </summary>
