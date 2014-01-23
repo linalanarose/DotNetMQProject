@@ -49,19 +49,20 @@ namespace Receiver
 					 if (SaveFile(msgs[i].ToString()))
 					 {
 						  if (delete)
+						  //logic here fails if the database deletes other messages during the saving of messages.
+						  //needs redone eventually
 						  {
 								database.DeleteOldestMessage();
+								Console.WriteLine("Deleted successfuly saved message from queue.");
 						  }
 					 }
 					 else //retry this message if fails to save
 					 {
 						  i--;
+						  Console.WriteLine("Message save failed. Trying again.");
 					 }
 					 Thread.Sleep(mDelay);
 				}
-				//logic here fails if the database deletes other messages during the saving of messages.
-				//needs redone eventually
-
 		  }
         /// <summary>
         /// Receives each message to a file denoted by the msg ID (delete as you go if save successful)
