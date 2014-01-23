@@ -1,11 +1,13 @@
 ﻿﻿using System;
 using System.Collections;
+ using System.Configuration;
 using System.Collections.Generic;
+ using System.Collections.Specialized;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Collections.Specialized;
-using System.Configuration;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Database
 {
@@ -24,6 +26,7 @@ namespace Database
         private FileInfo mDBFileInfo;
         private static String mFilePath;
         public SQLiteConnection dbConnection;
+		  static DataProtectionScope scope = DataProtectionScope.CurrentUser;
 
         #region Constructors
         /// <summary>
@@ -113,7 +116,7 @@ namespace Database
         /// </remarks>
 		  public bool AddMessage(string msg)
 		  {
-            byte[] zippedMsg = Zip(msg);
+				byte[] zippedMsg = Encrypt(Zip(msg));
             int size = zippedMsg.Length;
             bool msgReceived = false;
             //If message can fit in the allowed file size, add the record
@@ -196,7 +199,7 @@ namespace Database
             {
                 dbConnection.Close();
             }
-            return UnZip(message);
+				return UnZip(Decrypt(message));
 		  }
 
           /// <summary>
@@ -336,9 +339,9 @@ namespace Database
             command.ExecuteNonQuery();
         }
 
-        private static byte[] Zip(string text)
+        private static byte[] Zip(string msg)
         {
-            byte[] buffer = System.Text.Encoding.Unicode.GetBytes(text);
+				byte[] buffer = System.Text.Encoding.Unicode.GetBytes(msg);
             MemoryStream ms = new MemoryStream();
             using (System.IO.Compression.GZipStream zip = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Compress, true))
             {
@@ -372,7 +375,7 @@ namespace Database
                 {
                     zip.Read(buffer, 0, buffer.Length);
                 }
-                return System.Text.Encoding.Unicode.GetString(buffer, 0, buffer.Length);
+					 return System.Text.Encoding.Unicode.GetString(buffer, 0, buffer.Length);
             }
         }
         /// <summary>
@@ -383,9 +386,18 @@ namespace Database
             var SQLiteDataBaseConfigu = ConfigurationManager.GetSection("SQLiteDataBaseConfigure") as NameValueCollection;
             mFilePath = SQLiteDataBaseConfigu["FilePath"].ToString();
         }
+		  private static byte[] Encrypt(byte[] msg)
+		  {
+				//var data = Encoding.Unicode.GetBytes(msg);
+				return ProtectedData.Protect(msg, null, scope);
+		  }
+		  private static byte[] Decrypt(byte[] data)
+		  {
+				return ProtectedData.Unprotect(data, null, scope);
+				//return Encoding.Unicode.GetString(decrypted);
+		  }
         #endregion
     }
-
     public class DataBaseEmptyException : System.Exception
     {
         public DataBaseEmptyException(string message) : base(message) { }
