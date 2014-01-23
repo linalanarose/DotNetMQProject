@@ -339,7 +339,11 @@ namespace Database
             SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
             command.ExecuteNonQuery();
         }
-
+		  /// <summary>
+		  /// Compresses the message
+		  /// </summary>
+		  /// <param name="msg">The string message</param>
+		  /// <returns>A compressed byte array representation of the message</returns>
         private static byte[] Zip(string msg)
         {
 				byte[] buffer = System.Text.Encoding.Unicode.GetBytes(msg);
@@ -360,7 +364,11 @@ namespace Database
             System.Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gzBuffer, 0, 4);
             return gzBuffer;
         }
-
+		  /// <summary>
+		  /// Decompresses the message
+		  /// </summary>
+		  /// <param name="compressedText">The previously compressed byte array</param>
+		  /// <returns>The original string message</returns>
         public static string UnZip(byte[] compressedText)
         {
             byte[] gzBuffer = compressedText;
@@ -379,12 +387,21 @@ namespace Database
 					 return System.Text.Encoding.Unicode.GetString(buffer, 0, buffer.Length);
             }
         }
-
+		  /// <summary>
+		  /// Encrypts the byte array
+		  /// </summary>
+		  /// <param name="msg">The compressed byte array (or regular byte array if no compression is needed)</param>
+		  /// <returns>An encrypted byte array</returns>
+		  /// <remarks>Only decryptable by the scope designated at start of class</remarks>
         private static byte[] Encrypt(byte[] msg)
         {
             return ProtectedData.Protect(msg, null, scope);
         }
-
+		  /// <summary>
+		  /// Decrypts the byte array
+		  /// </summary>
+		  /// <param name="data">The encrypted byte array</param>
+		  /// <returns>The (compressed) byte array passed into the encrypt function</returns>
         private static byte[] Decrypt(byte[] data)
         {
             return ProtectedData.Unprotect(data, null, scope);
