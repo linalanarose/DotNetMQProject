@@ -39,10 +39,9 @@ namespace Sender
                 {
                     Console.WriteLine("Invalid Input! Please Try Again.");
                 }
-					 
             }
-              //Following lines are for performance testing
-              /*
+            //Following lines are for performance testing
+            /*
             static void Main(string[] args)
             {
               Configure();

@@ -167,7 +167,7 @@ namespace Database
 		  {
 				if (CheckEmptyTable())
 				{
-					 Console.WriteLine("No Messages!");
+                throw new DataBaseEmptyException("No Messages to retrive");
 				}
             string message = string.Empty;
             try
@@ -332,6 +332,11 @@ namespace Database
             mFilePath = SQLiteDataBaseConfigu["FilePath"].ToString();
         }
         #endregion
+    }
+
+    public class DataBaseEmptyException : System.Exception
+    {
+        public DataBaseEmptyException(string message) : base(message) { }
     }
 }
         

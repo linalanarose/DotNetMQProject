@@ -74,7 +74,7 @@ namespace Receiver
 					 ReceiveAMessage();
 					 Thread.Sleep(mDelay);
             }
-            Console.WriteLine("Messages saved to your directory!");
+            Console.WriteLine("No More Messages");
         }
 		  /// <summary>
 		  /// Gets and deletes 1 message from the Database
@@ -82,10 +82,17 @@ namespace Receiver
 		  private static void ReceiveAMessage()
 		  {
 				//if the file save is successful, delete the message
-				if (SaveFile(database.GetOldestMessage()))
-				{
-					 database.DeleteOldestMessage();
-				}
+            try
+            {
+                if (SaveFile(database.GetOldestMessage()))
+                {
+                    database.DeleteOldestMessage();
+                }
+            }
+            catch (DataBaseEmptyException e)
+            {
+                Console.WriteLine(e.Message);
+            }
 		  }
 
         /// <summary>
