@@ -35,7 +35,8 @@ namespace Sender
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Invalid Input! Please Try Again.");
+                    if (e is FileNotFoundException || e is DirectoryNotFoundException)
+                        Console.WriteLine("Invalid Input! Please Try Again.");
                 }
             }
             //Following lines are for performance testing

@@ -1,6 +1,7 @@
 ﻿﻿﻿using Database;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Data.SQLite;
@@ -43,9 +44,9 @@ namespace Receiver
 		  /// <param name="delete">Delete messages on receipt or not</param>
 		  private static void ReceiveBySize(int maxSize, bool delete)
 		  { 
-				ArrayList msgs = database.GetMsgBySize(maxSize);
+				List<string> msgs = database.GetMsgBySize(maxSize);
 				int numMsgs = msgs.Count;
-				for (int i = 0; i < numMsgs; i++ )
+            for (int i = 0; i < numMsgs; i++ )
 				{
 					 if (SaveFile(msgs[i].ToString()))
 					 {

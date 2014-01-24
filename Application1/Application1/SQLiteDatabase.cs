@@ -51,7 +51,7 @@ namespace Database
             {
                 dbConnection.Open();
                 //Create messages table if it not exists
-                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message BLOB, msgSize INT)";
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message BLOB)";
                 ExecuteSQL(sql);
                 //Create lastID table if it not exists
                 string lastIDTable = "CREATE TABLE IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
@@ -91,7 +91,7 @@ namespace Database
             {
                 dbConnection.Open();
                 //Create messages table if it not exists
-                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message BLOB, msgSize INT)";
+                string sql = "CREATE TABLE IF NOT EXISTS messages (msgID INTEGER PRIMARY KEY, message BLOB)";
                 ExecuteSQL(sql);
                 //Create lastID talbe if it not exists
                 string lastIDTable = "CREATE TABLE IF NOT EXISTS lastID(ID INTEGER PRIMARY KEY, lastID INT)";
@@ -124,21 +124,22 @@ namespace Database
                 try
                 {
 					     string sql;
-						  dbConnection.Open();
+
                     //if table is empty, insert the row with the id of last deleted record
 					     if (CheckEmptyTable())
 					     {
-                        sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" + (mLastMsgID + 1) + "', @msg , '" + size + "')";
+                        dbConnection.Open();
+                        sql = "INSERT INTO messages (msgID, message) VALUES ('" + (mLastMsgID + 1) + "', @msg)";
 					     }
 					     else
-					     {                   
-						      sql = "INSERT INTO messages (message, msgSize) VALUES (@msg , '" + size + "')";
+					     {
+                        dbConnection.Open();
+						      sql = "INSERT INTO messages (message) VALUES (@msg)";
 					     }
 						  var para = new SQLiteParameter("@msg", DbType.Binary) { Value = zippedMsg };
 						  var command = new SQLiteCommand(sql, dbConnection);
 						  command.Parameters.Add(para);
 						  command.ExecuteNonQuery();
-                    //ExecuteSQL(sql);
                     msgReceived = true;
                 }
                 finally
@@ -181,9 +182,6 @@ namespace Database
             {
                 dbConnection.Open();                 
 					 //get message to deliver
-                //string msgSize = "SELECT msgSize FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
-                //SQLiteCommand msgSizeCmd = new SQLiteCommand(msgSize, dbConnection);
-                //int msgSizeValue = Convert.ToInt32(msgSizeCmd.ExecuteScalar());
                 string sql = "SELECT message FROM messages WHERE msgID = (SELECT MIN(msgID) FROM messages)";
                 SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
                 SQLiteDataReader reader = command.ExecuteReader();
@@ -200,9 +198,9 @@ namespace Database
           /// Receive messages by certain size
           /// </summary>
           /// <param name="size">Size of messages in bytes</param>
-          public ArrayList GetMsgBySize(int size)
+          public List<string> GetMsgBySize(int size)
           {
-              ArrayList messages = new ArrayList();
+              List<string> messages = new List<string>();
               try{
                   int receivedSize = 0;
                   int counter = 0;
@@ -220,8 +218,6 @@ namespace Database
                       SQLiteDataReader getMsgReader = getMsgCmd.ExecuteReader();
                       byte[] message = (byte[]) getMsgReader["message"];
                       messages.Add(UnZip(Decrypt(message)));
-                      //Calculate received message size
-                      //SQLiteCommand getSizeCmd = new SQLiteCommand("SELECT msgSize FROM messages WHERE msgID ='" + rowPointer + "'", dbConnection);
                       receivedSize += message.Length;
                       counter++;
                   }
