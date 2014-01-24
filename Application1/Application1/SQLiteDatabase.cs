@@ -1,8 +1,8 @@
 ﻿﻿using System;
 using System.Collections;
- using System.Configuration;
+using System.Configuration;
 using System.Collections.Generic;
- using System.Collections.Specialized;
+using System.Collections.Specialized;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -19,21 +19,22 @@ namespace Database
     /// </remarks>
     public class SQLiteDatabase
     {
-		  private static int mMaxSize;
-		  private int mDBSize;
+		  private static String mFilePath;
 		  private static int mLastMsgID;
+		  private static int mMaxSize;
+		  private static DataProtectionScope scope = DataProtectionScope.CurrentUser;
+		  private int mDBSize;
         private String mDeliveryPath;
         private FileInfo mDBFileInfo;
-        private static String mFilePath;
         public SQLiteConnection dbConnection;
-		  static DataProtectionScope scope = DataProtectionScope.CurrentUser;
+		  
 
         #region Constructors
         /// <summary>
-        /// Constructor: called by the sender that creates the database and sets up the max number of messages
+        /// Constructor: called by the sender that creates the database and sets up the max size
         /// for the database. If the database doesn't exist it creates that and a table.
         /// </summary>
-        /// <param name="maxMsgs">The cap for how many messages the queue can hold</param>
+        /// <param name="maxMsgs">The cap size of the queue</param>
 		  public SQLiteDatabase(int maxSize)
 		  {
             Configure();
@@ -108,12 +109,10 @@ namespace Database
 
         #region Methods
         /// <summary>
-        /// Makes a message and inserts it at the next point in the table
+        /// Encrypts, compresses and stores a given message to the database
         /// </summary>
-        /// <param name="message">The path to the XML file to be sent</param>
-        /// <remarks>
-        /// We will have to make the param type generic in the future
-        /// </remarks>
+        /// <param name="msg">String to be encrypted, compressed and stored in the database</param>
+
 		  public bool AddMessage(string msg)
 		  {
 				byte[] zippedMsg = Encrypt(Zip(msg));
@@ -125,25 +124,20 @@ namespace Database
                 try
                 {
 					     string sql;
+						  dbConnection.Open();
                     //if table is empty, insert the row with the id of last deleted record
 					     if (CheckEmptyTable())
 					     {
-                        dbConnection.Open();
                         sql = "INSERT INTO messages (msgID, message, msgSize) VALUES ('" + (mLastMsgID + 1) + "', @msg , '" + size + "')";
-                        var para = new SQLiteParameter("@msg", DbType.Binary) { Value = zippedMsg };
-                        var command = new SQLiteCommand(sql, dbConnection);
-                        command.Parameters.Add(para);
-                        command.ExecuteNonQuery();
 					     }
 					     else
-					     {
-                        dbConnection.Open();
+					     {                   
 						      sql = "INSERT INTO messages (message, msgSize) VALUES (@msg , '" + size + "')";
-                        var para = new SQLiteParameter("@msg", DbType.Binary) { Value = zippedMsg };
-                        var command = new SQLiteCommand(sql, dbConnection);
-                        command.Parameters.Add(para);
-                        command.ExecuteNonQuery();
 					     }
+						  var para = new SQLiteParameter("@msg", DbType.Binary) { Value = zippedMsg };
+						  var command = new SQLiteCommand(sql, dbConnection);
+						  command.Parameters.Add(para);
+						  command.ExecuteNonQuery();
                     //ExecuteSQL(sql);
                     msgReceived = true;
                 }
